@@ -16,53 +16,56 @@
     <MudItem xs="12">
         <MudPaper Style="height:80vh" Class="d-flex align-center justify-center mud-height-full mud-width-full py-8">
             <MudGrid>
-                <MudItem xs="2">
+                <MudItem xs="3">
+                    <MudText Align="Align.Center" Typo="Typo.h4">
+                        You
+                    </MudText>
                 </MudItem>
-                <MudItem Class="d-flex flex-column align-center justify-center" xs="8">
+                <MudItem Class="d-flex flex-column align-center justify-center" xs="6">
                     <div class="game">
                         <div class="board">
                             <div class="square top left" tabindex="0">
-                                <div class="x">
-                                </div>
+                                <div class="@cellClasses[0]"> </div>
                             </div>
                             <div class="square top" tabindex="0">
-                                <div class="">
-                                </div>
+                                <div class="@cellClasses[1]"> </div>
+
                             </div>
                             <div class="square top right" tabindex="0">
-                                <div class="">
-                                </div>
+                                <div class="@cellClasses[2]"> </div>
+
                             </div>
                             <div class="square left" tabindex="0">
-                                <div class="">
-                                </div>
+                                <div class="@cellClasses[3]"> </div>
+
                             </div>
                             <div class="square" tabindex="0">
-                                <div class="">
-                                </div>
+                                <div class="@cellClasses[4]"> </div>
+
                             </div>
                             <div class="square right" tabindex="0">
-                                <div class="o">
-                                </div>
+                                <div class="@cellClasses[5]"> </div>
+
                             </div>
                             <div class="square bottom left" tabindex="0">
-                                <div class="">
-                                </div>
+                                <div class="@cellClasses[6]"> </div>
+
                             </div>
                             <div class="square bottom" tabindex="0">
-                                <div class="">
-                                </div>
+                                <div class="@cellClasses[7]"> </div>
+
                             </div>
                             <div class="square bottom right" tabindex="0">
-                                <div class="">
-                                </div>
+                                <div class="@cellClasses[8]"> </div>
+
                             </div>
-                        </div>
-                        <div class="restart style-tRTxS" id="style-tRTxS">
                         </div>
                     </div>
                 </MudItem>
-                <MudItem xs="2">
+                <MudItem xs="3">
+                    <MudText Align="Align.Center" Typo="Typo.h4">
+                        @opponent.Name
+                    </MudText>
                 </MudItem>
             </MudGrid>
         </MudPaper>
@@ -73,11 +76,25 @@
 
 
 @code {
+    private string cellValueTag = "div";
+    private string[] cellClasses = new string[9]
+        {
+        "o",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        "",
+        };
     private bool isLoading = true;
     private string loadingMessage = "Loading...";
     private GameState? currentGameState;
     private Guid gameTypeId;
     private Player? me;
+    private Player opponent = new("Opponent");
     protected override async Task OnInitializedAsync()
     {
         me = await PlayerService.SetPlayerName(new(Guid.NewGuid().ToString()));
@@ -86,14 +103,14 @@
         TTTHub.OnGameStateUpdate += UpdateGameState;
         TTTHub.OnOpponentFound += HandleOpponentFound;
         gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
-        Player? opponent = await TTTClient.StartGameSearch(new(me.Id, gameTypeId));
+        Player? foundOpponent = await TTTClient.StartGameSearch(new(me.Id, gameTypeId));
         loadingMessage = "looking for opponent...";
-        if (opponent!=null)
+        if (foundOpponent!=null)
         {
-            Snackbar.Add($"Opponent found! Say hi to {opponent.Name}.", Severity.Success);
-            await TTTHub.NotifyFoundYou(opponent.ConnectionId, me.Id);
+            Snackbar.Add($"Opponent found! Say hi to {foundOpponent.Name}.", Severity.Success);
+            await TTTHub.NotifyFoundYou(foundOpponent.ConnectionId, me.Id);
             isLoading = false;
-
+            opponent = foundOpponent;
         }
     }
 
