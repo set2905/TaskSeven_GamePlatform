@@ -7,6 +7,7 @@ namespace TaskSeven_GamePlatform.Server.Services.Interfaces
     {
         public Task<Player?> SetGameTypeToPlayer(Guid playerId, Guid gameTypeId);
         public Task<Player> SetName(string name);
+        public Task<bool> SetPlayerConnectionId(Guid playerId, string connId);
         public Task<Player?> StartGameSearch(Player player, Guid gameTypeId);
 
 

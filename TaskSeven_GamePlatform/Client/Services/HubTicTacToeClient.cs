@@ -4,7 +4,7 @@ using TaskSeven_GamePlatform.Client.Services.Interfaces;
 
 namespace TaskSeven_GamePlatform.Client.Services
 {
-    public class HubTicTacToeClient: IHubTicTacToeClient
+    public class HubTicTacToeClient : IHubTicTacToeClient
     {
         HubConnection? hubConnection;
         NavigationManager navigation;
@@ -15,7 +15,7 @@ namespace TaskSeven_GamePlatform.Client.Services
             this.navigation=navigation;
         }
 
-        public async Task Initialize()
+        public async Task<string> Initialize()
         {
             if (hubConnection == null)
             {
@@ -37,6 +37,7 @@ namespace TaskSeven_GamePlatform.Client.Services
                 if (OnOpponentFound!=null)
                     OnOpponentFound.Invoke(playerId);
             });
+            return hubConnection.ConnectionId;
         }
         public async Task NotifyGameStateUpdate(string opponentConnId)
         {

@@ -27,12 +27,19 @@ namespace TaskSeven_GamePlatform.Server.Controllers
             if (gameState == null) return BadRequest("GameTypeId state with provided id not found");
             return new JsonResult(gameState);
         }
-
+        [HttpPost]
+        [Route("SetConnectionId")]
+        public async Task<IActionResult> SetPlayerConnectionId(SetConnIdRequestModel model)
+        {
+            if (!await playerService.SetPlayerConnectionId(model.PlayerId, model.ConnectionId))
+                return BadRequest("Couldnt set player connection Id");
+            return Ok();
+        }
         [HttpPost]
         [Route("SetPlayerName")]
-        public async Task<IActionResult> SetPlayerName(string name)
+        public async Task<IActionResult> SetPlayerName(SetNameRequestModel model)
         {
-            Player? player = await playerService.SetName(name);
+            Player? player = await playerService.SetName(model.Name);
             return new JsonResult(player);
         }
         /// <param name="model"></param>

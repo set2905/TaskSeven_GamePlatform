@@ -12,6 +12,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped<IHubTicTacToeClient, HubTicTacToeClient>();
 builder.Services.AddScoped<ITicTacToeClientService, TicTacToeClientService>();
+builder.Services.AddScoped<IPlayerClientService, PlayerClientService>();
 
 builder.Services.AddMudServices();
 

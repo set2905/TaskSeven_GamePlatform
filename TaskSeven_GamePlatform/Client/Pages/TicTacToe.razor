@@ -1,9 +1,8 @@
 ﻿@page "/tictactoe"
 @using TaskSeven_GamePlatform.Client.Services.Interfaces;
-@using TaskSeven_GamePlatform.Shared
 @using TaskSeven_GamePlatform.Shared.Models;
-@using TaskSeven_GamePlatforms.Shared.Models;
 @inject ITicTacToeClientService TTTClient
+@inject IPlayerClientService PlayerService
 @inject IHubTicTacToeClient TTTHub
 
 <PageTitle>Tic Tac Toe</PageTitle>
@@ -18,8 +17,9 @@
     private Player? me;
     protected override async Task OnInitializedAsync()
     {
-        me = await TTTClient.SetPlayerName("test");
-        await TTTHub.Initialize();
+        me = await PlayerService.SetPlayerName(new("test1"));
+        string ConnectionId = await TTTHub.Initialize();
+        await PlayerService.SetPlayerConnectionId(new(ConnectionId, me.Id));
         TTTHub.OnGameStateUpdate += UpdateGameState;
         TTTHub.OnOpponentFound += HandleOpponentFound;
     }

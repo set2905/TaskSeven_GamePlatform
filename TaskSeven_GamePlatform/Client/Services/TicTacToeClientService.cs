@@ -12,7 +12,6 @@ namespace TaskSeven_GamePlatform.Client.Services
         {
             this.snackbar = snackbar;
         }
-
         public async Task<GameState?> GetGameState(Guid gameStateId)
         {
             try
@@ -79,17 +78,7 @@ namespace TaskSeven_GamePlatform.Client.Services
             }
         }
 
-        public async Task<Player?> SetPlayerName(string name)
-        {
-            try
-            {
-                return await PostAsync<Player, string>("api/TicTacToe/SetPlayerName", name);
-            }
-            catch (Exception ex)
-            {
-                snackbar.Add(ex.Message, Severity.Error);
-                return null;
-            }
-        }
+
+        
     }
 }

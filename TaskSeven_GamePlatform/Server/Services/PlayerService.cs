@@ -26,6 +26,15 @@ namespace TaskSeven_GamePlatform.Server.Services
             }
             return player;
         }
+        public async Task<bool> SetPlayerConnectionId(Guid playerId, string connId)
+        {
+            Player? player = await playerRepo.GetById(playerId);
+            if (player==null)
+                return false;
+            player.ConnectionId=connId;
+            await playerRepo.Save(player);
+            return true;
+        }
         public async Task<Player?> SetGameTypeToPlayer(Guid playerId, Guid gameTypeId)
         {
             GameType? gameType = await gameTypeRepo.GetById(gameTypeId);

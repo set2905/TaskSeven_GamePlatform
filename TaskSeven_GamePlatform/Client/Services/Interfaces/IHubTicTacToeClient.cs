@@ -8,7 +8,7 @@
         public Task NotifyFoundYou(string opponentConnId, Guid playerId);
 
 
-        public Task Initialize();
+        public Task<string> Initialize();
 
     }
 }

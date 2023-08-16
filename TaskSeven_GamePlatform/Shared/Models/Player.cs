@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TaskSeven_GamePlatform.Shared.Models;
 
-namespace TaskSeven_GamePlatforms.Shared.Models
+namespace TaskSeven_GamePlatform.Shared.Models
 {
     public class Player
     {
