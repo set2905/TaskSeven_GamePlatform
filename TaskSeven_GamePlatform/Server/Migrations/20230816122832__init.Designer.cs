@@ -84,7 +84,7 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.ToTable("GameTypes");
                 });
 
-            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.Player", b =>
+            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.PlayerId", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -135,11 +135,11 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.Player", "Player1")
+                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.PlayerId", "Player1")
                         .WithMany()
                         .HasForeignKey("Player1Id");
 
-                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.Player", "Player2")
+                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.PlayerId", "Player2")
                         .WithMany()
                         .HasForeignKey("Player2Id");
 
@@ -150,13 +150,13 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.Navigation("Player2");
                 });
 
-            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.Player", b =>
+            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.PlayerId", b =>
                 {
                     b.HasOne("TaskSeven_GamePlatform.Shared.Models.GameTypeId", "CurrentGameType")
                         .WithMany()
                         .HasForeignKey("CurrentGameTypeId");
 
-                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.Player", "Opponent")
+                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.PlayerId", "Opponent")
                         .WithMany()
                         .HasForeignKey("OpponentId");
 

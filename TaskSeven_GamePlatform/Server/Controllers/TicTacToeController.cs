@@ -30,32 +30,34 @@ namespace TaskSeven_GamePlatform.Server.Controllers
 
         [HttpPost]
         [Route("StartGameSearch")]
-        public async Task<IActionResult> StartGameSearch(GameSearchRequestModel gameSearchRequestModel)
+        public async Task<IActionResult> StartGameSearch(GameSearchRequestModel model)
         {
-            Player player = await playerService.SetNameAndGameType(gameSearchRequestModel.PlayerName, gameSearchRequestModel.GameTypeId);
-            Player? opponent = await playerService.StartGameSearch(player, gameSearchRequestModel.GameTypeId);
+            Player? player = await playerService.SetNameAndGameType(model.PlayerName, model.GameTypeId);
+            if (player==null) return BadRequest("Couldnt set player name and game type");
+            Player? opponent = await playerService.StartGameSearch(player, model.GameTypeId);
             return new JsonResult(opponent);
         }
 
         [HttpPost]
         [Route("StartGame")]
-        public async Task<IActionResult> StartGame(string playerName, GameType gameType)
+        public async Task<IActionResult> StartGame(GameStartRequestModel model)
         {
-            
-            return new JsonResult(opponent);
+            Guid? gameStateId = await tttService.StartGame(model.PlayerId, model.OpponentId, model.GameTypeId);
+            if (gameStateId==null) return BadRequest("Couldnt start game");
+            return new JsonResult(gameStateId);
         }
 
         [HttpPost]
         [Route("Move")]
-        public async Task<IActionResult> Move(MoveRequestModel moveModel)
+        public async Task<IActionResult> Move(MoveRequestModel model)
         {
-            GameState? gameState = await tttService.GetGameState(moveModel.StateId);
+            GameState? gameState = await tttService.GetGameState(model.StateId);
             if (gameState == null) return BadRequest("GameTypeId state with provided id not found");
-            if (gameState.Player1.Id!=moveModel.Player.Id&&gameState.Player2.Id!=moveModel.Player.Id)
+            if (gameState.Player1.Id!=model.PlayerId&&gameState.Player2.Id!=model.PlayerId)
                 return BadRequest("You dont belong here");
             TicTacToeMarker marker = TicTacToeMarker.O;
-            if (gameState.Id==moveModel.Player.Id) marker=TicTacToeMarker.X;
-            bool hasWinner = await tttService.Play(marker, moveModel.Position, gameState);
+            if (gameState.Player1.Id==model.PlayerId) marker=TicTacToeMarker.X;
+            bool hasWinner = await tttService.Play(marker, model.Position, gameState);
             return new JsonResult(hasWinner);
         }
 
