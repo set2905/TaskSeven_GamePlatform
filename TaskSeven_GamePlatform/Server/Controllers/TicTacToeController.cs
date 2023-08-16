@@ -48,7 +48,7 @@ namespace TaskSeven_GamePlatform.Server.Controllers
         public async Task<IActionResult> StartGameSearch(GameSearchRequestModel model)
         {
             Player? player = await playerService.SetGameTypeToPlayer(model.PlayerId, model.GameTypeId);
-            if (player==null) return BadRequest("Couldnt set player name and game type");
+            if (player==null) return BadRequest("Couldnt set game type");
             Player? opponent = await playerService.StartGameSearch(player, model.GameTypeId);
             return new JsonResult(opponent);
         }

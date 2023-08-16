@@ -4,6 +4,8 @@
 @inject ITicTacToeClientService TTTClient
 @inject IPlayerClientService PlayerService
 @inject IHubTicTacToeClient TTTHub
+@inject ISnackbar Snackbar
+
 
 <PageTitle>Tic Tac Toe</PageTitle>
 
@@ -17,11 +19,18 @@
     private Player? me;
     protected override async Task OnInitializedAsync()
     {
-        me = await PlayerService.SetPlayerName(new("test1"));
+        me = await PlayerService.SetPlayerName(new(Guid.NewGuid().ToString()));
         string ConnectionId = await TTTHub.Initialize();
         await PlayerService.SetPlayerConnectionId(new(ConnectionId, me.Id));
         TTTHub.OnGameStateUpdate += UpdateGameState;
         TTTHub.OnOpponentFound += HandleOpponentFound;
+
+        Player? opponent = await TTTClient.StartGameSearch(new(me.Id, Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C")));
+        if (opponent!=null)
+        {
+            Snackbar.Add($"Opponent found! Say hi to {opponent.Name}.", Severity.Success);
+            await TTTHub.NotifyFoundYou(opponent.ConnectionId, me.Id);
+        }
     }
 
     private async Task UpdateGameState()
@@ -38,6 +47,7 @@
     }
     private async Task HandleOpponentFound(Guid opponentId)
     {
+        Snackbar.Add($"Opponent found!{opponentId}", Severity.Success);
         await TTTClient.StartGame(new(me.Id, opponentId, gameTypeId));
     }
 
