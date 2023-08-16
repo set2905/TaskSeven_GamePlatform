@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using TaskSeven_GamePlatform.Server.Services.Interfaces;
 using TaskSeven_GamePlatform.Shared.Models;
-using TaskSeven_GamePlatforms.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Controllers
 {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskSeven_GamePlatform.Server.Domain.Repo.Interfaces;
 using TaskSeven_GamePlatform.Shared.Models;
-using TaskSeven_GamePlatforms.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Domain.Repo
 {

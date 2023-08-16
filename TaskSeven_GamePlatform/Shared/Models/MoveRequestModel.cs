@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskSeven_GamePlatforms.Shared.Models;
+using TaskSeven_GamePlatform.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Shared.Models
 {

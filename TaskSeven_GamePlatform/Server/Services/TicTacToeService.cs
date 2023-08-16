@@ -1,12 +1,9 @@
-﻿using System.Security.AccessControl;
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
-using TaskSeven_GamePlatform.Server.Controllers;
 using TaskSeven_GamePlatform.Server.Domain.Repo.Interfaces;
 using TaskSeven_GamePlatform.Server.Services.Interfaces;
 using TaskSeven_GamePlatform.Shared.Models;
-using TaskSeven_GamePlatforms.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Services
 {

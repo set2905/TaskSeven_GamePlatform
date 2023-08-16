@@ -1,7 +1,6 @@
 ﻿using MudBlazor;
 using TaskSeven_GamePlatform.Client.Services.Interfaces;
 using TaskSeven_GamePlatform.Shared.Models;
-using TaskSeven_GamePlatforms.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Client.Services
 {
