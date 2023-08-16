@@ -8,12 +8,73 @@
 
 
 <PageTitle>Tic Tac Toe</PageTitle>
+<MudOverlay @bind-Visible="isLoading" DarkBackground="true">
+    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" Style="width:50vw" />
+    @*<MudText Typo="Typo.h1">@loadingMessage</MudText>*@
+</MudOverlay>
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Style="height:80vh" Class="d-flex align-center justify-center mud-height-full mud-width-full py-8">
+            <MudGrid>
+                <MudItem xs="2">
+                </MudItem>
+                <MudItem Class="d-flex flex-column align-center justify-center" xs="8">
+                    <div class="game">
+                        <div class="board">
+                            <div class="square top left" tabindex="0">
+                                <div class="x">
+                                </div>
+                            </div>
+                            <div class="square top" tabindex="0">
+                                <div class="">
+                                </div>
+                            </div>
+                            <div class="square top right" tabindex="0">
+                                <div class="">
+                                </div>
+                            </div>
+                            <div class="square left" tabindex="0">
+                                <div class="">
+                                </div>
+                            </div>
+                            <div class="square" tabindex="0">
+                                <div class="">
+                                </div>
+                            </div>
+                            <div class="square right" tabindex="0">
+                                <div class="o">
+                                </div>
+                            </div>
+                            <div class="square bottom left" tabindex="0">
+                                <div class="">
+                                </div>
+                            </div>
+                            <div class="square bottom" tabindex="0">
+                                <div class="">
+                                </div>
+                            </div>
+                            <div class="square bottom right" tabindex="0">
+                                <div class="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="restart style-tRTxS" id="style-tRTxS">
+                        </div>
+                    </div>
+                </MudItem>
+                <MudItem xs="2">
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
 
-<MudText Typo="Typo.h3" GutterBottom="true">Weather forecast</MudText>
-<MudText Class="mb-8">This component demonstrates fetching data from the server.</MudText>
+</MudGrid>
+
 
 
 @code {
+    private bool isLoading = true;
+    private string loadingMessage = "Loading...";
     private GameState? currentGameState;
     private Guid gameTypeId;
     private Player? me;
@@ -24,12 +85,15 @@
         await PlayerService.SetPlayerConnectionId(new(ConnectionId, me.Id));
         TTTHub.OnGameStateUpdate += UpdateGameState;
         TTTHub.OnOpponentFound += HandleOpponentFound;
-
-        Player? opponent = await TTTClient.StartGameSearch(new(me.Id, Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C")));
+        gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
+        Player? opponent = await TTTClient.StartGameSearch(new(me.Id, gameTypeId));
+        loadingMessage = "looking for opponent...";
         if (opponent!=null)
         {
             Snackbar.Add($"Opponent found! Say hi to {opponent.Name}.", Severity.Success);
             await TTTHub.NotifyFoundYou(opponent.ConnectionId, me.Id);
+            isLoading = false;
+
         }
     }
 
@@ -48,7 +112,10 @@
     private async Task HandleOpponentFound(Guid opponentId)
     {
         Snackbar.Add($"Opponent found!{opponentId}", Severity.Success);
-        await TTTClient.StartGame(new(me.Id, opponentId, gameTypeId));
+        Guid? gameStateId = await TTTClient.StartGame(new(me.Id, opponentId, gameTypeId));
+        if (gameStateId!=null)
+            isLoading = false;
+
     }
 
 }
