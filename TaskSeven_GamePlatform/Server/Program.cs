@@ -2,7 +2,11 @@
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using TaskSeven_GamePlatform.Server.Domain;
+using TaskSeven_GamePlatform.Server.Domain.Repo;
+using TaskSeven_GamePlatform.Server.Domain.Repo.Interfaces;
 using TaskSeven_GamePlatform.Server.Hubs;
+using TaskSeven_GamePlatform.Server.Services;
+using TaskSeven_GamePlatform.Server.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +31,12 @@ builder.Services.AddResponseCompression(opts =>
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
        new[] { "application/octet-stream" });
 });
+builder.Services.AddTransient<IPlayerRepo, PlayerRepo>();
+builder.Services.AddTransient<IGameStateRepo, GameStateRepo>();
+builder.Services.AddTransient<IGameTypeRepo, GameTypeRepo>();
+builder.Services.AddTransient<IPlayerService, PlayerService>();
+builder.Services.AddTransient<ITicTacToeService, TicTacToeService>();
+
 
 var app = builder.Build();
 app.UseResponseCompression();

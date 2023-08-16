@@ -14,9 +14,11 @@
 
 @code {
     private GameState? currentGameState;
-    private Player me;
+    private Guid gameTypeId;
+    private Player? me;
     protected override async Task OnInitializedAsync()
     {
+        me = await TTTClient.SetPlayerName("test");
         await TTTHub.Initialize();
         TTTHub.OnGameStateUpdate += UpdateGameState;
         TTTHub.OnOpponentFound += HandleOpponentFound;
@@ -36,7 +38,7 @@
     }
     private async Task HandleOpponentFound(Guid opponentId)
     {
-        await TTTClient.StartGame(new(me.Id,opponentId));
+        await TTTClient.StartGame(new(me.Id, opponentId, gameTypeId));
     }
 
 }
