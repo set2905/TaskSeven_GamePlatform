@@ -5,21 +5,46 @@ using TaskSeven_GamePlatform.Server.Controllers;
 using TaskSeven_GamePlatform.Server.Domain.Repo.Interfaces;
 using TaskSeven_GamePlatform.Server.Services.Interfaces;
 using TaskSeven_GamePlatform.Shared.Models;
+using TaskSeven_GamePlatforms.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Services
 {
     public class TicTacToeService : ITicTacToeService
     {
-        private readonly ITicTacToeStateRepo stateRepo;
+        private readonly IGameStateRepo stateRepo;
+        private readonly IPlayerRepo playerRepo;
+        private readonly IGameTypeRepo gameTypeRepo;
         JsonSerializerOptions options;
 
-        public TicTacToeService(ITicTacToeStateRepo stateRepo)
+        public TicTacToeService(IGameStateRepo stateRepo,IPlayerRepo playerRepo, IGameTypeRepo gameTypeRepo)
         {
             this.stateRepo=stateRepo;
-            this.options = new JsonSerializerOptions
+            options = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
             };
+            this.playerRepo=playerRepo;
+            this.gameTypeRepo=gameTypeRepo;
+        }
+        public async Task<GameState?> GetGameState(Guid id)
+        {
+            return await stateRepo.GetById(id);
+        }
+
+        public async Task<Guid?> StartGame(Guid playerId, Guid opponentId, Guid gameTypeId)
+        {
+            Player? player1 = await playerRepo.GetById(playerId);
+            Player? player2 = await playerRepo.GetById(opponentId);
+            GameType? gameType = await gameTypeRepo.GetById(gameTypeId);
+
+            if (player1 == null || player2 == null||gameType == null)
+                return null;
+            if (player1.IsPlaying||player2.IsPlaying||player1.CurrentGameTypeId!=gameTypeId||player2.CurrentGameTypeId!=gameTypeId)
+                return null;
+
+            GameState state = new(player1, player2, gameType);
+            return await stateRepo.Save(state);
+
         }
 
         public async Task<bool> Play(TicTacToeMarker player, int position, GameState state)

@@ -13,9 +13,9 @@ namespace TaskSeven_GamePlatform.Server.Hubs
         {
             await Clients.Client(opponentConnId).SendAsync("NotifyFoundYou", playerId);
         }
-        public async Task NotifyTTTStateUpdate(string opponentConnId, GameState gameState)
+        public async Task NotifyGameStateUpdate(string opponentConnId)
         {
-            await Clients.Client(opponentConnId).SendAsync("NotifyTTTStateUpdate", gameState);
+            await Clients.Client(opponentConnId).SendAsync("NotifyGameStateUpdate");
         }
 
     }

@@ -12,25 +12,34 @@ namespace TaskSeven_GamePlatforms.Shared.Models
         public Player()
         {
             Name=string.Empty;
+            CurrentGameType=new();
         }
 
-        public Player(string name)
+        public Player(Guid id)
+        {
+            Id=id;
+        }
+
+        public Player(string name, GameType gameType)
         {
             Name=name;
             IsPlaying=false;
             WaitingForMove=false;
             LookingForOpponent=false;
+            CurrentGameType=gameType;
         }
 
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public Player? Opponent { get; set; }
+
         public bool IsPlaying { get; set; }
         public bool WaitingForMove { get; set; }
         public bool LookingForOpponent { get; set; }
         public DateTime GameStarted { get; set; }
         public string? ConnectionId { get; set; }
-        public GameType CurrentGame { get; set; }
-        public Guid CurrentGameId { get; set; }
+        public Player? Opponent { get; set; }
+        public Guid? OpponentId { get; set; }
+        public GameType? CurrentGameType { get; set; }
+        public Guid? CurrentGameTypeId { get; set; }
     }
 }

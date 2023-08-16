@@ -3,7 +3,7 @@ using TaskSeven_GamePlatform.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Domain.Repo
 {
-    public class TicTacToeStateRepo : ITicTacToeStateRepo
+    public class GameStateRepo : IGameStateRepo
     {
         public async Task<bool> Delete(GameState entity)
         {

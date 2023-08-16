@@ -14,21 +14,19 @@ namespace TaskSeven_GamePlatform.Shared.Models
     {
         public GameState()
         {
-            Player1=new();
-            Player2=new();
             Field=string.Empty;
         }
 
-        public GameState(Player player1, Player player2, GameType game)
+        public GameState(Player player1, Player player2, GameType gameType)
         {
             Player1=player1;
             Player2=player2;
-            Game=game;
+            GameType=gameType;
             var options = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
             };
-            int[] field = new int[game.FieldSize];
+            int[] field = new int[gameType.FieldSize];
             for (var i = 0; i < field.Length; i++)
             {
                 field[i] = -1;
@@ -41,14 +39,14 @@ namespace TaskSeven_GamePlatform.Shared.Models
 
         public bool IsDraw { get; set; }
 
-        public Player Player1 { get; set; }
+        public Player? Player1 { get; set; }
 
-        public Player Player2 { get; set; }
+        public Player? Player2 { get; set; }
 
         public string Field { get; set; }
         public int MovesLeft { get; set; }
         public int SecondsPerMove { get; set; }
         public DateTime LastMove { get; set; }
-        public GameType Game { get; set; }
+        public GameType GameType { get; set; }
     }
 }

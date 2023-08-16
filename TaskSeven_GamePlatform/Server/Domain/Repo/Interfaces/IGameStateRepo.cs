@@ -2,7 +2,7 @@
 
 namespace TaskSeven_GamePlatform.Server.Domain.Repo.Interfaces
 {
-    public interface ITicTacToeStateRepo : IRepo<GameState>
+    public interface IGameStateRepo : IRepo<GameState>
     {
        
     }
