@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+﻿using System.Security.AccessControl;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
 using TaskSeven_GamePlatform.Server.Controllers;
@@ -9,6 +10,9 @@ using TaskSeven_GamePlatforms.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Services
 {
+
+    //В абстрактный класс!!!
+
     public class TicTacToeService : ITicTacToeService
     {
         private readonly IGameStateRepo stateRepo;
@@ -16,7 +20,7 @@ namespace TaskSeven_GamePlatform.Server.Services
         private readonly IGameTypeRepo gameTypeRepo;
         JsonSerializerOptions options;
 
-        public TicTacToeService(IGameStateRepo stateRepo,IPlayerRepo playerRepo, IGameTypeRepo gameTypeRepo)
+        public TicTacToeService(IGameStateRepo stateRepo, IPlayerRepo playerRepo, IGameTypeRepo gameTypeRepo)
         {
             this.stateRepo=stateRepo;
             options = new JsonSerializerOptions
@@ -30,7 +34,13 @@ namespace TaskSeven_GamePlatform.Server.Services
         {
             return await stateRepo.GetById(id);
         }
-
+        public async Task<bool> ExitGame(Guid playerId)
+        {
+            Player? player = await playerRepo.GetById(playerId);
+            if (player == null) return false;
+            await SetPlayerGameEnd(player);
+            return true;
+        }
         public async Task<Guid?> StartGame(Guid playerId, Guid opponentId, Guid gameTypeId)
         {
             Player? player1 = await playerRepo.GetById(playerId);
@@ -41,6 +51,9 @@ namespace TaskSeven_GamePlatform.Server.Services
                 return null;
             if (player1.IsPlaying||player2.IsPlaying||player1.CurrentGameTypeId!=gameTypeId||player2.CurrentGameTypeId!=gameTypeId)
                 return null;
+
+            await SetPlayerGameStart(player1, gameType);
+            await SetPlayerGameStart(player2, gameType);
 
             GameState state = new(player1, player2, gameType);
             return await stateRepo.Save(state);
@@ -69,6 +82,21 @@ namespace TaskSeven_GamePlatform.Server.Services
             state.Field=JsonSerializer.Serialize(field, options);
             await stateRepo.Save(state);
             return true;
+        }
+        private async Task SetPlayerGameStart(Player player, GameType gameType)
+        {
+            player.LookingForOpponent=false;
+            player.CurrentGameType=gameType;
+            player.GameStarted=DateTime.Now;
+            player.IsPlaying=true;
+            await playerRepo.Save(player);
+        }
+        private async Task SetPlayerGameEnd(Player player)
+        {
+            player.LookingForOpponent=false;
+            player.CurrentGameType=null;
+            player.IsPlaying=false;
+            await playerRepo.Save(player);
         }
         private bool VerifyMove(int position, int[] field)
         {

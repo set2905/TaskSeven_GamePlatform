@@ -19,7 +19,7 @@ namespace TaskSeven_GamePlatform.Server.Controllers
             this.tttService=tttService;
             this.playerService=playerService;
         }
-        [HttpGet]
+        [HttpPost]
         [Route("GameState")]
         public async Task<IActionResult> GetGameState(Guid gameStateId)
         {
@@ -28,6 +28,9 @@ namespace TaskSeven_GamePlatform.Server.Controllers
             return new JsonResult(gameState);
         }
 
+
+        /// <param name="model"></param>
+        /// <returns>Found opponent or null if opponent not found</returns>
         [HttpPost]
         [Route("StartGameSearch")]
         public async Task<IActionResult> StartGameSearch(GameSearchRequestModel model)
@@ -38,6 +41,8 @@ namespace TaskSeven_GamePlatform.Server.Controllers
             return new JsonResult(opponent);
         }
 
+        /// <param name="model"></param>
+        /// <returns>Game state Id or null if game wasnt started</returns>
         [HttpPost]
         [Route("StartGame")]
         public async Task<IActionResult> StartGame(GameStartRequestModel model)
@@ -45,6 +50,16 @@ namespace TaskSeven_GamePlatform.Server.Controllers
             Guid? gameStateId = await tttService.StartGame(model.PlayerId, model.OpponentId, model.GameTypeId);
             if (gameStateId==null) return BadRequest("Couldnt start game");
             return new JsonResult(gameStateId);
+        }
+
+        [HttpPost]
+        [Route("ExitGame")]
+        public async Task<IActionResult> ExitGame(Guid playerId)
+        {
+            if (await tttService.ExitGame(playerId))
+                return Ok();
+            else 
+                return BadRequest("Couldnt exit game");
         }
 
         [HttpPost]
