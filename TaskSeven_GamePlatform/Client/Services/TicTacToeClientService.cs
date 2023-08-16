@@ -56,5 +56,32 @@ namespace TaskSeven_GamePlatform.Client.Services
                 return null;
             }
         }
+
+        /// <param name="model"></param>
+        /// <returns>Game state Id or null if game wasnt started</returns>
+        public async Task<bool?> Move(MoveRequestModel model)
+        {
+            try
+            {
+                return await PostAsync<bool?, MoveRequestModel>("api/TicTacToe/Move", model);
+            }
+            catch (Exception ex)
+            {
+                snackbar.Add(ex.Message, Severity.Error);
+                return null;
+            }
+        }
+
+        public async Task ExitGame(Guid playerId)
+        {
+            try
+            {
+                await PostAsync("api/TicTacToe/ExitGame", playerId);
+            }
+            catch (Exception ex)
+            {
+                snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
     }
 }
