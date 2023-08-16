@@ -1,17 +1,19 @@
 ﻿using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using TaskSeven_GamePlatform.Server.Controllers;
 using TaskSeven_GamePlatform.Server.Domain.Repo.Interfaces;
+using TaskSeven_GamePlatform.Server.Services.Interfaces;
 using TaskSeven_GamePlatform.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Services
 {
-    public class TicTacToeService
+    public class TicTacToeService : ITicTacToeService
     {
-        private readonly IGameStateRepo stateRepo;
+        private readonly ITicTacToeStateRepo stateRepo;
         JsonSerializerOptions options;
 
-        public TicTacToeService(IGameStateRepo stateRepo)
+        public TicTacToeService(ITicTacToeStateRepo stateRepo)
         {
             this.stateRepo=stateRepo;
             this.options = new JsonSerializerOptions
@@ -20,7 +22,7 @@ namespace TaskSeven_GamePlatform.Server.Services
             };
         }
 
-        public async Task<bool> Play(int player, int position, TicTacToeGameState state)
+        public async Task<bool> Play(TicTacToeMarker player, int position, GameState state)
         {
             if (state.IsGameOver)
                 return false;
@@ -37,7 +39,7 @@ namespace TaskSeven_GamePlatform.Server.Services
 
             if (!VerifyMove(position, field)) return false;
 
-            PlaceMarker(player, position, field);
+            PlaceMarker((int)player, position, field);
             state.IsGameOver = CheckWinner(field);
             state.Field=JsonSerializer.Serialize(field, options);
             await stateRepo.Save(state);

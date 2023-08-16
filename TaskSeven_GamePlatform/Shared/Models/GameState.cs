@@ -1,28 +1,41 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Unicode;
+using System.Threading.Tasks;
+using TaskSeven_GamePlatforms.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Shared.Models
 {
-    public class TicTacToeGameState
+    public class GameState
     {
-        public TicTacToeGameState()
+        public GameState()
         {
+            Player1=new();
+            Player2=new();
+            Field=string.Empty;
+        }
+
+        public GameState(Player player1, Player player2, GameType game)
+        {
+            Player1=player1;
+            Player2=player2;
+            Game=game;
             var options = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
             };
-            int[] field = new int[9];
+            int[] field = new int[game.FieldSize];
             for (var i = 0; i < field.Length; i++)
             {
                 field[i] = -1;
             }
             Field=JsonSerializer.Serialize(field, options);
-
-            Player1=new();
-            Player2=new();
         }
+
         public Guid Id { get; set; }
         public bool IsGameOver { get; set; }
 
@@ -36,5 +49,6 @@ namespace TaskSeven_GamePlatform.Shared.Models
         public int MovesLeft { get; set; }
         public int SecondsPerMove { get; set; }
         public DateTime LastMove { get; set; }
+        public GameType Game { get; set; }
     }
 }

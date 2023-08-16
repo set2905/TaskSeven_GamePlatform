@@ -3,24 +3,24 @@ using TaskSeven_GamePlatform.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Domain.Repo
 {
-    public class TicTacToeGameStateRepo : IGameStateRepo
+    public class TicTacToeStateRepo : ITicTacToeStateRepo
     {
-        public async Task<bool> Delete(TicTacToeGameState entity)
+        public async Task<bool> Delete(GameState entity)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<List<TicTacToeGameState>> GetAll()
+        public async Task<List<GameState>> GetAll()
         {
             throw new NotImplementedException();
         }
 
-        public async Task<TicTacToeGameState?> GetById(Guid id)
+        public async Task<GameState?> GetById(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Guid> Save(TicTacToeGameState entity)
+        public async Task<Guid> Save(GameState entity)
         {
             throw new NotImplementedException();
         }
