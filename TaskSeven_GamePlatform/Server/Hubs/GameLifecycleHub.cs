@@ -17,6 +17,10 @@ namespace TaskSeven_GamePlatform.Server.Hubs
         {
             await Clients.Client(opponentConnId).SendAsync("NotifyGameStateUpdate");
         }
+        public async Task NotifyGameStarted(string opponentConnId, Guid gameStateId)
+        {
+            await Clients.Client(opponentConnId).SendAsync("NotifyGameStarted", gameStateId);
+        }
 
     }
 

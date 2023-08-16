@@ -1,4 +1,7 @@
 ﻿@page "/tictactoe"
+@using System.Text.Json;
+@using System.Text.Encodings.Web;
+@using System.Text.Unicode;
 @using TaskSeven_GamePlatform.Client.Services.Interfaces;
 @using TaskSeven_GamePlatform.Shared.Models;
 @inject ITicTacToeClientService TTTClient
@@ -25,38 +28,43 @@
                     <div class="game">
                         <div class="board">
                             <div class="square top left" tabindex="0">
-                                <div class="@cellClasses[0]"> </div>
+                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(0)" />
+                                <div class="@cellValues[0]"> </div>
                             </div>
                             <div class="square top" tabindex="0">
-                                <div class="@cellClasses[1]"> </div>
-
+                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(1)" />
+                                <div class="@cellValues[1]"> </div>
                             </div>
                             <div class="square top right" tabindex="0">
-                                <div class="@cellClasses[2]"> </div>
-
+                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(2)" />
+                                <div class="@cellValues[2]"> </div>
                             </div>
                             <div class="square left" tabindex="0">
-                                <div class="@cellClasses[3]"> </div>
-
+                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(3)" />
+                                <div class="@cellValues[3]"> </div>
                             </div>
                             <div class="square" tabindex="0">
-                                <div class="@cellClasses[4]"> </div>
-
+                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(4)" />
+                                <div class="@cellValues[4]"> </div>
                             </div>
                             <div class="square right" tabindex="0">
-                                <div class="@cellClasses[5]"> </div>
+                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(5)" />
+                                <div class="@cellValues[5]"> </div>
 
                             </div>
                             <div class="square bottom left" tabindex="0">
-                                <div class="@cellClasses[6]"> </div>
+                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(6)" />
+                                <div class="@cellValues[6]"> </div>
 
                             </div>
                             <div class="square bottom" tabindex="0">
-                                <div class="@cellClasses[7]"> </div>
+                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(7)" />
+                                <div class="@cellValues[7]"> </div>
 
                             </div>
                             <div class="square bottom right" tabindex="0">
-                                <div class="@cellClasses[8]"> </div>
+                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(8)" />
+                                <div class="@cellValues[8]"> </div>
 
                             </div>
                         </div>
@@ -76,19 +84,12 @@
 
 
 @code {
-    private string cellValueTag = "div";
-    private string[] cellClasses = new string[9]
+    private JsonSerializerOptions options = new JsonSerializerOptions
         {
-        "o",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
-        "",
+            Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
         };
+    private string cellValueTag = "div";
+    private string[] cellValues = Enumerable.Repeat(string.Empty, 9).ToArray();
     private bool isLoading = true;
     private string loadingMessage = "Loading...";
     private GameState? currentGameState;
@@ -102,6 +103,7 @@
         await PlayerService.SetPlayerConnectionId(new(ConnectionId, me.Id));
         TTTHub.OnGameStateUpdate += UpdateGameState;
         TTTHub.OnOpponentFound += HandleOpponentFound;
+        TTTHub.OnGameStarted += HandleGameStart;
         gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
         Player? foundOpponent = await TTTClient.StartGameSearch(new(me.Id, gameTypeId));
         loadingMessage = "looking for opponent...";
@@ -112,6 +114,7 @@
             isLoading = false;
             opponent = foundOpponent;
         }
+        await UpdateGameState();
     }
 
     private async Task UpdateGameState()
@@ -121,18 +124,38 @@
     }
     private async Task UpdateGameState(Guid gameStateId)
     {
-        if (currentGameState == null) return;
         GameState? recievedState = await TTTClient.GetGameState(gameStateId);
         if (recievedState == null) return;
         currentGameState = recievedState;
+        int[]? field = JsonSerializer.Deserialize<int[]>(currentGameState.Field, options);
+        for (int i = 0; i<field.Length; i++)
+        {
+            if (field[i] == 0) cellValues[i] = "o";
+            if (field[i] == 1) cellValues[i] = "x";
+        }
+    }
+    private async Task HandleGameStart(Guid gameStateId)
+    {
+        await UpdateGameState(gameStateId);
     }
     private async Task HandleOpponentFound(Guid opponentId)
     {
+        isLoading = false;
+
         Snackbar.Add($"Opponent found!{opponentId}", Severity.Success);
         Guid? gameStateId = await TTTClient.StartGame(new(me.Id, opponentId, gameTypeId));
         if (gameStateId!=null)
-            isLoading = false;
+        {
+            await TTTHub.NotifyGameStarted(opponent.ConnectionId, (Guid)gameStateId);
+            await UpdateGameState((Guid)gameStateId);
+        }
 
     }
-
+    private async Task Move(int pos)
+    {
+        bool? result = await TTTClient.Move(new(me.Id, currentGameState.Id, pos));
+        if (result == null) return;
+        await UpdateGameState();
+        await TTTHub.NotifyGameStateUpdate(opponent.ConnectionId);
+    }
 }

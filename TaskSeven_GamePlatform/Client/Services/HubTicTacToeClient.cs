@@ -9,7 +9,8 @@ namespace TaskSeven_GamePlatform.Client.Services
         HubConnection? hubConnection;
         NavigationManager navigation;
         public event GameStateUpdate? OnGameStateUpdate;
-        public event OpponentFound? OnOpponentFound;
+        public event IdDelegate? OnOpponentFound;
+        public event IdDelegate? OnGameStarted;
         public HubTicTacToeClient(NavigationManager navigation)
         {
             this.navigation=navigation;
@@ -37,11 +38,20 @@ namespace TaskSeven_GamePlatform.Client.Services
                 if (OnOpponentFound!=null)
                     OnOpponentFound.Invoke(playerId);
             });
+            hubConnection.On<Guid>("NotifyGameStarted", (gameStateId) =>
+            {
+                if (OnGameStarted!=null)
+                    OnGameStarted.Invoke(gameStateId);
+            });
             return hubConnection.ConnectionId;
         }
         public async Task NotifyGameStateUpdate(string opponentConnId)
         {
             await hubConnection.SendAsync("NotifyGameStateUpdate", opponentConnId);
+        }      
+        public async Task NotifyGameStarted(string opponentConnId, Guid gameStateId)
+        {
+            await hubConnection.SendAsync("NotifyGameStarted", opponentConnId, gameStateId);
         }
         public async Task NotifyFoundYou(string opponentConnId, Guid playerId)
         {
@@ -55,6 +65,6 @@ namespace TaskSeven_GamePlatform.Client.Services
             }
         }
     }
-    public delegate Task OpponentFound(Guid playerId);
+    public delegate Task IdDelegate(Guid id);
     public delegate Task GameStateUpdate();
 }
