@@ -12,7 +12,7 @@ using TaskSeven_GamePlatform.Server.Domain;
 namespace TaskSeven_GamePlatform.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230816122832__init")]
+    [Migration("20230816131232__init")]
     partial class _init
     {
         /// <inheritdoc />
@@ -70,7 +70,7 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.ToTable("GameStates");
                 });
 
-            modelBuilder.Entity("TaskSeven_GamePlatform.Shared.Models.GameTypeId", b =>
+            modelBuilder.Entity("TaskSeven_GamePlatform.Shared.Models.GameType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -84,7 +84,7 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.ToTable("GameTypes");
                 });
 
-            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.PlayerId", b =>
+            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.Player", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -92,9 +92,6 @@ namespace TaskSeven_GamePlatform.Server.Migrations
 
                     b.Property<string>("ConnectionId")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("CurrentGameTypeId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("CurrentGameTypeId")
                         .HasColumnType("uniqueidentifier");
@@ -129,34 +126,34 @@ namespace TaskSeven_GamePlatform.Server.Migrations
 
             modelBuilder.Entity("TaskSeven_GamePlatform.Shared.Models.GameState", b =>
                 {
-                    b.HasOne("TaskSeven_GamePlatform.Shared.Models.GameTypeId", "GameTypeId")
+                    b.HasOne("TaskSeven_GamePlatform.Shared.Models.GameType", "GameType")
                         .WithMany()
                         .HasForeignKey("GameTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.PlayerId", "Player1")
+                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.Player", "Player1")
                         .WithMany()
                         .HasForeignKey("Player1Id");
 
-                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.PlayerId", "Player2")
+                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.Player", "Player2")
                         .WithMany()
                         .HasForeignKey("Player2Id");
 
-                    b.Navigation("GameTypeId");
+                    b.Navigation("GameType");
 
                     b.Navigation("Player1");
 
                     b.Navigation("Player2");
                 });
 
-            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.PlayerId", b =>
+            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.Player", b =>
                 {
-                    b.HasOne("TaskSeven_GamePlatform.Shared.Models.GameTypeId", "CurrentGameType")
+                    b.HasOne("TaskSeven_GamePlatform.Shared.Models.GameType", "CurrentGameType")
                         .WithMany()
                         .HasForeignKey("CurrentGameTypeId");
 
-                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.PlayerId", "Opponent")
+                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.Player", "Opponent")
                         .WithMany()
                         .HasForeignKey("OpponentId");
 

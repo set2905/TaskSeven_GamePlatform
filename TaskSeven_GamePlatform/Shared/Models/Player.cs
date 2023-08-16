@@ -10,15 +10,7 @@ namespace TaskSeven_GamePlatforms.Shared.Models
     public class Player
     {
         public Player()
-        {
-            Name=string.Empty;
-            CurrentGameType=new();
-        }
-
-        public Player(Guid id)
-        {
-            Id=id;
-        }
+        { }
 
         public Player(string name, GameType gameType)
         {

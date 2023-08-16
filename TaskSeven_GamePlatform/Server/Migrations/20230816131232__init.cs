@@ -35,8 +35,7 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     GameStarted = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ConnectionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OpponentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CurrentGameTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    CurrentGameId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    CurrentGameTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
