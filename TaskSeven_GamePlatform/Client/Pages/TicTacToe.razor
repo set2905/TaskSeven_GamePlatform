@@ -1,5 +1,10 @@
 ﻿@page "/tictactoe"
+@using TaskSeven_GamePlatform.Client.Services.Interfaces;
 @using TaskSeven_GamePlatform.Shared
+@using TaskSeven_GamePlatform.Shared.Models;
+@using TaskSeven_GamePlatforms.Shared.Models;
+@inject ITicTacToeClientService TTTClient
+@inject IHubTicTacToeClient TTTHub
 
 <PageTitle>Tic Tac Toe</PageTitle>
 
@@ -7,10 +12,31 @@
 <MudText Class="mb-8">This component demonstrates fetching data from the server.</MudText>
 
 
-
-
-
-
 @code {
+    private GameState? currentGameState;
+    private Player me;
+    protected override async Task OnInitializedAsync()
+    {
+        await TTTHub.Initialize();
+        TTTHub.OnGameStateUpdate += UpdateGameState;
+        TTTHub.OnOpponentFound += HandleOpponentFound;
+    }
+
+    private async Task UpdateGameState()
+    {
+        if (currentGameState == null) return;
+        await UpdateGameState(currentGameState.Id);
+    }
+    private async Task UpdateGameState(Guid gameStateId)
+    {
+        if (currentGameState == null) return;
+        GameState? recievedState = await TTTClient.GetGameState(gameStateId);
+        if (recievedState == null) return;
+        currentGameState = recievedState;
+    }
+    private async Task HandleOpponentFound(Guid opponentId)
+    {
+        await TTTClient.StartGame(new(me.Id,opponentId));
+    }
 
 }

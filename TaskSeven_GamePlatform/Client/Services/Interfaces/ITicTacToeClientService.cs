@@ -10,6 +10,8 @@ namespace TaskSeven_GamePlatform.Client.Services.Interfaces
         public Task ExitGame(Guid playerId);
         public Task<bool?> Move(MoveRequestModel model);
         public Task<Guid?> StartGame(GameStartRequestModel model);
+        public Task<Player?> SetPlayerName(string name);
+
 
 
     }

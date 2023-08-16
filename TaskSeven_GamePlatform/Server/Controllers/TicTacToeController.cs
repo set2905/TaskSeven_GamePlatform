@@ -28,14 +28,20 @@ namespace TaskSeven_GamePlatform.Server.Controllers
             return new JsonResult(gameState);
         }
 
-
+        [HttpPost]
+        [Route("SetPlayerName")]
+        public async Task<IActionResult> SetPlayerName(string name)
+        {
+            Player? player = await playerService.SetName(name);
+            return new JsonResult(player);
+        }
         /// <param name="model"></param>
         /// <returns>Found opponent or null if opponent not found</returns>
         [HttpPost]
         [Route("StartGameSearch")]
         public async Task<IActionResult> StartGameSearch(GameSearchRequestModel model)
         {
-            Player? player = await playerService.SetNameAndGameType(model.PlayerName, model.GameTypeId);
+            Player? player = await playerService.SetGameTypeToPlayer(model.PlayerId, model.GameTypeId);
             if (player==null) return BadRequest("Couldnt set player name and game type");
             Player? opponent = await playerService.StartGameSearch(player, model.GameTypeId);
             return new JsonResult(opponent);
@@ -58,7 +64,7 @@ namespace TaskSeven_GamePlatform.Server.Controllers
         {
             if (await tttService.ExitGame(playerId))
                 return Ok();
-            else 
+            else
                 return BadRequest("Couldnt exit game");
         }
 

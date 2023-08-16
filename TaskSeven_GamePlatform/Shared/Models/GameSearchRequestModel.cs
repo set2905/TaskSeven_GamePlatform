@@ -8,13 +8,13 @@ namespace TaskSeven_GamePlatform.Shared.Models
 {
     public class GameSearchRequestModel
     {
-        public GameSearchRequestModel(string playerName, Guid gameTypeId)
+        public GameSearchRequestModel(Guid playerId, Guid gameTypeId)
         {
-            PlayerName=playerName;
+            PlayerId=playerId;
             GameTypeId=gameTypeId;
         }
 
-        public string PlayerName { get; set; }
+        public Guid PlayerId { get; set; }
         public Guid GameTypeId { get; set; }  
     }
 }

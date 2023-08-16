@@ -25,8 +25,6 @@ namespace TaskSeven_GamePlatform.Client.Services
                 return null;
             }
         }
-
-
         /// <param name="model"></param>
         /// <returns>Found opponent or null if opponent not found</returns>
         public async Task<Player?> StartGameSearch(GameSearchRequestModel model)
@@ -41,7 +39,6 @@ namespace TaskSeven_GamePlatform.Client.Services
                 return null;
             }
         }
-
         /// <param name="model"></param>
         /// <returns>Game state Id or null if game wasnt started</returns>
         public async Task<Guid?> StartGame(GameStartRequestModel model)
@@ -56,7 +53,6 @@ namespace TaskSeven_GamePlatform.Client.Services
                 return null;
             }
         }
-
         /// <param name="model"></param>
         /// <returns>Game state Id or null if game wasnt started</returns>
         public async Task<bool?> Move(MoveRequestModel model)
@@ -71,7 +67,6 @@ namespace TaskSeven_GamePlatform.Client.Services
                 return null;
             }
         }
-
         public async Task ExitGame(Guid playerId)
         {
             try
@@ -81,6 +76,19 @@ namespace TaskSeven_GamePlatform.Client.Services
             catch (Exception ex)
             {
                 snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
+
+        public async Task<Player?> SetPlayerName(string name)
+        {
+            try
+            {
+                return await PostAsync<Player, string>("api/TicTacToe/SetPlayerName", name);
+            }
+            catch (Exception ex)
+            {
+                snackbar.Add(ex.Message, Severity.Error);
+                return null;
             }
         }
     }

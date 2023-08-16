@@ -12,13 +12,12 @@ namespace TaskSeven_GamePlatforms.Shared.Models
         public Player()
         { }
 
-        public Player(string name, GameType gameType)
+        public Player(string name)
         {
             Name=name;
             IsPlaying=false;
             WaitingForMove=false;
             LookingForOpponent=false;
-            CurrentGameType=gameType;
         }
 
         public Guid Id { get; set; }
