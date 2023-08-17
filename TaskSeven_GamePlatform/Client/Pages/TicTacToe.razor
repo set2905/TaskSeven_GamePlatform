@@ -11,6 +11,15 @@
 
 
 <PageTitle>Tic Tac Toe</PageTitle>
+<MudOverlay @bind-Visible="@nameDialogVisible" DarkBackground="true">
+    <MudPaper Class="pa-12">
+        <MudStack AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <p>Your name</p>
+            <MudTextField @bind-Value="@playerName" Class="mt-3" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnSubmitName" Class="px-10">Submit</MudButton>
+        </MudStack>
+    </MudPaper>
+</MudOverlay>
 <MudOverlay OnClick="@Restart" @bind-Visible="@isGameOver" DarkBackground="true">
     <MudPaper>
         <MudText Typo="Typo.h3">@gameOverMessage</MudText>
@@ -18,7 +27,7 @@
 </MudOverlay>
 <MudOverlay @bind-Visible="@isLoading" DarkBackground="true">
     <MudPaper Class="pa-12">
-        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" Style="width:50vw" />
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" Style="width:100%" />
         <MudText Align="Align.Center" Typo="Typo.h4">@loadingMessage</MudText>
     </MudPaper>
 </MudOverlay>
@@ -27,7 +36,7 @@
         <MudPaper Style="height:80vh" Class="d-flex align-center justify-center mud-height-full mud-width-full py-8">
             <MudGrid>
                 <MudItem xs="3">
-                    <MudText Align="Align.Center" Typo="Typo.h6">
+                    <MudText Class="d-none d-md-block" Align="Align.Center" Typo="Typo.h6">
                         You
                     </MudText>
                 </MudItem>
@@ -83,7 +92,7 @@
                     </div>
                 </MudItem>
                 <MudItem xs="3">
-                    <MudText Align="Align.Center" Typo="Typo.h6">
+                    <MudText Class="d-none d-md-block" Align="Align.Center" Typo="Typo.h6">
                         @opponent.Name
                     </MudText>
                 </MudItem>
@@ -100,29 +109,29 @@
         {
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
         };
+    private DialogOptions nameDialogOptions = new() { FullWidth = true };
+    private bool nameDialogVisible = true;
+    private string playerName = string.Empty;
     private string cellValueTag = "div";
     private string[] cellValues = Enumerable.Repeat(string.Empty, 9).ToArray();
-    private bool isLoading = true;
+    private bool isLoading = false;
     private bool isGameOver = false;
     private string loadingMessage = "Looking for opponent...";
     private string gameOverMessage = "Game Over";
     private GameState? currentGameState;
     private Guid gameTypeId;
-    private Player? me;
+    private Player? player;
     private Player opponent = new("Opponent");
+
     protected override async Task OnInitializedAsync()
     {
-        await InitializePlayer();
-        TTTHub.OnGameStateUpdate += UpdateGameState;
-        TTTHub.OnOpponentFoundYou += HandleOpponentFoundYou;
-        TTTHub.OnGameStarted += HandleGameStart;
-        gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
-        await TryFindOpponent();
-        // await UpdateGameState();
+        nameDialogVisible=true;
+        StateHasChanged();
     }
     private async Task Restart()
     {
         cellValues = Enumerable.Repeat(string.Empty, 9).ToArray();
+        loadingMessage = "Looking for opponent...";
         isGameOver = false;
         isLoading = true;
         opponent=new("Opponent");
@@ -133,23 +142,24 @@
     {
         while (opponent.Id == default)
         {
-            Player? foundOpponent = await TTTClient.StartGameSearch(new(me.Id, gameTypeId));
+            Player? foundOpponent = await TTTClient.StartGameSearch(new(player.Id, gameTypeId));
             if (foundOpponent != null)
             {
                 loadingMessage = "Opponent found! Waiting for game to start.";
-                await TTTHub.NotifyFoundYou(foundOpponent.ConnectionId, me.Id);
+                await TTTHub.NotifyFoundYou(foundOpponent.ConnectionId, player.Id);
                 opponent = foundOpponent;
             }
-            else
-                loadingMessage = "Looking for opponent...";
             await Task.Delay(7000);
         }
     }
-    private async Task InitializePlayer()
+    private async Task InitializePlayer(string name)
     {
-        me = await PlayerService.SetPlayerName(new(Guid.NewGuid().ToString()));
+        player = await PlayerService.SetPlayerName(new(name));
         string ConnectionId = await TTTHub.Initialize();
-        await PlayerService.SetPlayerConnectionId(new(ConnectionId, me.Id));
+        TTTHub.OnGameStateUpdate += UpdateGameState;
+        TTTHub.OnOpponentFoundYou += HandleOpponentFoundYou;
+        TTTHub.OnGameStarted += HandleGameStart;
+        await PlayerService.SetPlayerConnectionId(new(ConnectionId, player.Id));
     }
 
     private async Task UpdateGameState()
@@ -172,7 +182,7 @@
         {
             isGameOver = true;
             if (currentGameState.Winner != null)
-                gameOverMessage = currentGameState.Winner.Id == me.Id ? "Game over! You win!" : "Game over! You lose!";
+                gameOverMessage = currentGameState.Winner.Id == player.Id ? "Game over! You win!" : "Game over! You lose!";
 
             if (currentGameState.IsDraw == true)
                 gameOverMessage = "Game over! Draw!";
@@ -191,7 +201,7 @@
     {
         isLoading = false;
         Snackbar.Add("Opponent found!", Severity.Success);
-        Guid? gameStateId = await TTTClient.StartGame(new(me.Id, opponentId, gameTypeId));
+        Guid? gameStateId = await TTTClient.StartGame(new(player.Id, opponentId, gameTypeId));
         if (gameStateId!=null)
         {
             Player? found = await TTTClient.GetPlayer(opponentId);
@@ -214,7 +224,8 @@
     }
     private async Task Move(int pos)
     {
-        bool? result = await TTTClient.Move(new(me.Id, currentGameState.Id, pos));
+        if (currentGameState == null||player==null||opponent.ConnectionId==null) return;
+        bool? result = await TTTClient.Move(new(player.Id, currentGameState.Id, pos));
         if (result == null) return;
         await UpdateGameState();
         await TTTHub.NotifyGameStateUpdate(opponent.ConnectionId);
@@ -222,5 +233,20 @@
     private void ShowError(string message)
     {
         Snackbar.Add(message, Severity.Error);
+    }
+    private async Task OnSubmitName()
+    {
+        if (playerName.Length == 0) return;
+        nameDialogVisible = false;
+        isLoading = true;
+        loadingMessage = "Initializing player...";
+        StateHasChanged();
+
+        await InitializePlayer(playerName);
+        loadingMessage = "Looking for opponent...";
+        StateHasChanged();
+        gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
+        await TryFindOpponent();
+
     }
 }

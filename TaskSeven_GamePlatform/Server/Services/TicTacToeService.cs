@@ -72,19 +72,9 @@ namespace TaskSeven_GamePlatform.Server.Services
             if (player==null||player.WaitingForMove)
                 return false;
 
-            if (gameState.MovesLeft <= 0||(DateTime.Now-gameState.LastMove).Seconds>gameState.SecondsPerMove)
-            {
-                gameState.IsGameOver = true;
-                gameState.IsDraw = true;
-                player.IsPlaying=false;
-                opponnent.IsPlaying=false;
-                await playerRepo.Save(player);
-                await playerRepo.Save(opponnent);
-
-                await stateRepo.Save(gameState);
-                return false;
-            }
             gameState.MovesLeft -= 1;
+
+
 
             int[]? field = JsonSerializer.Deserialize<int[]>(gameState.Field, options);
 
@@ -101,6 +91,17 @@ namespace TaskSeven_GamePlatform.Server.Services
                 gameState.Winner=player;
                 player.IsPlaying=false;
                 opponnent.IsPlaying=false;
+            }
+            else if (gameState.MovesLeft <= 0||(DateTime.Now-gameState.LastMove).Seconds>gameState.SecondsPerMove)
+            {
+                gameState.IsGameOver = true;
+                gameState.IsDraw = true;
+                player.IsPlaying=false;
+                opponnent.IsPlaying=false;
+                await playerRepo.Save(player);
+                await playerRepo.Save(opponnent);
+                await stateRepo.Save(gameState);
+                return false;
             }
             gameState.Field=JsonSerializer.Serialize(field, options);
             gameState.LastMove=DateTime.Now;
