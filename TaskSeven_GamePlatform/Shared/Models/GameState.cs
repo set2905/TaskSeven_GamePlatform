@@ -33,14 +33,14 @@ namespace TaskSeven_GamePlatform.Shared.Models
 
         public bool IsDraw { get; set; }
 
-        public Player? Player1 { get; set; }
+        public virtual Player? Player1 { get; set; }
 
-        public Player? Player2 { get; set; }
+        public virtual Player? Player2 { get; set; }
 
         public string Field { get; set; }
         public int MovesLeft { get; set; }
         public int SecondsPerMove { get; set; }
         public DateTime LastMove { get; set; }
-        public GameType GameType { get; set; }
+        public virtual GameType GameType { get; set; }
     }
 }

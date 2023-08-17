@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace TaskSeven_GamePlatform.Shared.Models
 {
-    public class GameType
+    public class GetByIdRequestModel
     {
-        public GameType()
+        public GetByIdRequestModel(Guid id)
         {
-            Name=string.Empty;
+            Id=id;
         }
 
         public Guid Id { get; set; }
-        public int FieldSize { get; set; }
-        public string Name { get; set; }
     }
 }

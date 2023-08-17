@@ -6,7 +6,7 @@ namespace TaskSeven_GamePlatform.Client.Services
 {
     public class HubTicTacToeClient : IHubTicTacToeClient
     {
-        HubConnection? hubConnection;
+        HubConnection hubConnection;
         NavigationManager navigation;
         public event GameStateUpdate? OnGameStateUpdate;
         public event IdDelegate? OnOpponentFound;

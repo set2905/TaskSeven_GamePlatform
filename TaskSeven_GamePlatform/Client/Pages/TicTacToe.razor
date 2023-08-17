@@ -98,23 +98,29 @@
     private Player opponent = new("Opponent");
     protected override async Task OnInitializedAsync()
     {
-        me = await PlayerService.SetPlayerName(new(Guid.NewGuid().ToString()));
-        string ConnectionId = await TTTHub.Initialize();
-        await PlayerService.SetPlayerConnectionId(new(ConnectionId, me.Id));
+        await InitializePlayer();
         TTTHub.OnGameStateUpdate += UpdateGameState;
         TTTHub.OnOpponentFound += HandleOpponentFound;
         TTTHub.OnGameStarted += HandleGameStart;
         gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
+        await TryFindOpponent();
+        // await UpdateGameState();
+    }
+    private async Task TryFindOpponent()
+    {
         Player? foundOpponent = await TTTClient.StartGameSearch(new(me.Id, gameTypeId));
-        loadingMessage = "looking for opponent...";
         if (foundOpponent!=null)
         {
-            Snackbar.Add($"Opponent found! Say hi to {foundOpponent.Name}.", Severity.Success);
+            Snackbar.Add($"Opponent found!", Severity.Success);
             await TTTHub.NotifyFoundYou(foundOpponent.ConnectionId, me.Id);
-            isLoading = false;
             opponent = foundOpponent;
         }
-        await UpdateGameState();
+    }
+    private async Task InitializePlayer()
+    {
+        me = await PlayerService.SetPlayerName(new(Guid.NewGuid().ToString()));
+        string ConnectionId = await TTTHub.Initialize();
+        await PlayerService.SetPlayerConnectionId(new(ConnectionId, me.Id));
     }
 
     private async Task UpdateGameState()
@@ -136,20 +142,34 @@
     }
     private async Task HandleGameStart(Guid gameStateId)
     {
+        isLoading = false;
+        StateHasChanged();
         await UpdateGameState(gameStateId);
     }
     private async Task HandleOpponentFound(Guid opponentId)
     {
         isLoading = false;
-
         Snackbar.Add($"Opponent found!{opponentId}", Severity.Success);
         Guid? gameStateId = await TTTClient.StartGame(new(me.Id, opponentId, gameTypeId));
         if (gameStateId!=null)
         {
+            Player? found = await TTTClient.GetPlayer(opponentId);
+            if (found==null)
+            {
+                ShowError("Opponent found, but opponent id is not correct!");
+                return;
+            }
+            opponent = found;
+            if (opponent.ConnectionId==null)
+            {
+                ShowError("Opponent found, but opponent connection id is null!");
+                return;
+            }
             await TTTHub.NotifyGameStarted(opponent.ConnectionId, (Guid)gameStateId);
             await UpdateGameState((Guid)gameStateId);
-        }
+            StateHasChanged();
 
+        }
     }
     private async Task Move(int pos)
     {
@@ -157,5 +177,9 @@
         if (result == null) return;
         await UpdateGameState();
         await TTTHub.NotifyGameStateUpdate(opponent.ConnectionId);
+    }
+    private void ShowError(string message)
+    {
+        Snackbar.Add(message, Severity.Error);
     }
 }

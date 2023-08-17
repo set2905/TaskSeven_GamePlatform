@@ -15,10 +15,10 @@ namespace TaskSeven_GamePlatform.Shared.Models
     }
     public class MoveRequestModel
     {
-        public MoveRequestModel(Guid playerId, Guid gameStateId, int position)
+        public MoveRequestModel(Guid playerId, Guid stateId, int position)
         {
             PlayerId=playerId;
-            StateId=gameStateId;
+            StateId=stateId;
             Position=position;
         }
 

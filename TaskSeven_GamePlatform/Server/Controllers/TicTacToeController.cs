@@ -19,11 +19,19 @@ namespace TaskSeven_GamePlatform.Server.Controllers
             this.playerService=playerService;
         }
         [HttpPost]
-        [Route("GameState")]
-        public async Task<IActionResult> GetGameState(Guid gameStateId)
+        [Route("Player")]
+        public async Task<IActionResult> GetPlayer(GetByIdRequestModel model)
         {
-            GameState? gameState = await tttService.GetGameState(gameStateId);
-            if (gameState == null) return BadRequest("GameTypeId state with provided id not found");
+            Player? player = await playerService.GetById(model.Id);
+            if (player == null) return BadRequest("Player with provided id not found");
+            return new JsonResult(player);
+        }
+        [HttpPost]
+        [Route("GameState")]
+        public async Task<IActionResult> GetGameState(GetByIdRequestModel model)
+        {
+            GameState? gameState = await tttService.GetGameState(model.Id);
+            if (gameState == null) return BadRequest("Gamestate with provided id not found");
             return new JsonResult(gameState);
         }
         [HttpPost]
@@ -79,7 +87,7 @@ namespace TaskSeven_GamePlatform.Server.Controllers
         public async Task<IActionResult> Move(MoveRequestModel model)
         {
             GameState? gameState = await tttService.GetGameState(model.StateId);
-            if (gameState == null) return BadRequest("GameTypeId state with provided id not found");
+            if (gameState == null) return BadRequest("Gamestate with provided id not found");
             if (gameState.Player1.Id!=model.PlayerId&&gameState.Player2.Id!=model.PlayerId)
                 return BadRequest("You dont belong here");
             TicTacToeMarker marker = TicTacToeMarker.O;

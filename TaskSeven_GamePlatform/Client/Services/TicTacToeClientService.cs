@@ -11,11 +11,23 @@ namespace TaskSeven_GamePlatform.Client.Services
         {
             this.snackbar = snackbar;
         }
+        public async Task<Player?> GetPlayer(Guid playerId)
+        {
+            try
+            {
+                return await PostAsync<Player?, GetByIdRequestModel>("api/TicTacToe/Player", new(playerId));
+            }
+            catch (Exception ex)
+            {
+                snackbar.Add(ex.Message, Severity.Error);
+                return null;
+            }
+        }
         public async Task<GameState?> GetGameState(Guid gameStateId)
         {
             try
             {
-                return await PostAsync<GameState?, Guid>("api/TicTacToe/GameState", gameStateId);
+                return await PostAsync<GameState?, GetByIdRequestModel>("api/TicTacToe/GameState", new(gameStateId));
             }
             catch (Exception ex)
             {
@@ -78,6 +90,6 @@ namespace TaskSeven_GamePlatform.Client.Services
         }
 
 
-        
+
     }
 }

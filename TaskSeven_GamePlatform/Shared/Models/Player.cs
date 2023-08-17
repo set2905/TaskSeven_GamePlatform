@@ -28,9 +28,8 @@ namespace TaskSeven_GamePlatform.Shared.Models
         public bool LookingForOpponent { get; set; }
         public DateTime GameStarted { get; set; }
         public string? ConnectionId { get; set; }
-        public Player? Opponent { get; set; }
         public Guid? OpponentId { get; set; }
-        public GameType? CurrentGameType { get; set; }
+        public virtual GameType? CurrentGameType { get; set; }
         public Guid? CurrentGameTypeId { get; set; }
     }
 }
