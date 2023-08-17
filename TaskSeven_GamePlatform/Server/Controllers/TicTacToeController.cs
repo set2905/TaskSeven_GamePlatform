@@ -90,10 +90,9 @@ namespace TaskSeven_GamePlatform.Server.Controllers
             if (gameState == null) return BadRequest("Gamestate with provided id not found");
             if (gameState.Player1.Id!=model.PlayerId&&gameState.Player2.Id!=model.PlayerId)
                 return BadRequest("You dont belong here");
-            TicTacToeMarker marker = TicTacToeMarker.O;
-            if (gameState.Player1.Id==model.PlayerId) marker=TicTacToeMarker.X;
-            bool hasWinner = await tttService.Play(marker, model.Position, gameState);
-            return new JsonResult(hasWinner);
+           
+            bool success = await tttService.Play(model.PlayerId, model.Position, gameState);
+            return new JsonResult(success);
         }
 
     }

@@ -11,7 +11,12 @@
 
 
 <PageTitle>Tic Tac Toe</PageTitle>
-<MudOverlay @bind-Visible="isLoading" DarkBackground="true">
+<MudOverlay OnClick="@Restart" @bind-Visible="@isGameOver" DarkBackground="true">
+    <MudPaper>
+        <MudText Typo="Typo.h3">@gameOverMessage</MudText>
+    </MudPaper>
+</MudOverlay>
+<MudOverlay @bind-Visible="@isLoading" DarkBackground="true">
     <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" Style="width:50vw" />
     @*<MudText Typo="Typo.h1">@loadingMessage</MudText>*@
 </MudOverlay>
@@ -20,7 +25,7 @@
         <MudPaper Style="height:80vh" Class="d-flex align-center justify-center mud-height-full mud-width-full py-8">
             <MudGrid>
                 <MudItem xs="3">
-                    <MudText Align="Align.Center" Typo="Typo.h4">
+                    <MudText Align="Align.Center" Typo="Typo.h6">
                         You
                     </MudText>
                 </MudItem>
@@ -28,50 +33,55 @@
                     <div class="game">
                         <div class="board">
                             <div class="square top left" tabindex="0">
-                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(0)" />
-                                <div class="@cellValues[0]"> </div>
+                                <div class="@cellValues[0] mud-height-full mud-width-full">
+                                    <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(0)" />
+                                </div>
                             </div>
                             <div class="square top" tabindex="0">
-                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(1)" />
-                                <div class="@cellValues[1]"> </div>
+                                <div class="@cellValues[1] mud-height-full mud-width-full">
+                                    <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(1)" />
+                                </div>
                             </div>
                             <div class="square top right" tabindex="0">
-                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(2)" />
-                                <div class="@cellValues[2]"> </div>
+                                <div class="@cellValues[2] mud-height-full mud-width-full">
+                                    <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(2)" />
+                                </div>
                             </div>
                             <div class="square left" tabindex="0">
-                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(3)" />
-                                <div class="@cellValues[3]"> </div>
+                                <div class="@cellValues[3] mud-height-full mud-width-full">
+                                    <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(3)" />
+                                </div>
                             </div>
                             <div class="square" tabindex="0">
-                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(4)" />
-                                <div class="@cellValues[4]"> </div>
+                                <div class="@cellValues[4] mud-height-full mud-width-full">
+                                    <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(4)" />
+                                </div>
                             </div>
                             <div class="square right" tabindex="0">
-                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(5)" />
-                                <div class="@cellValues[5]"> </div>
-
+                                <div class="@cellValues[5] mud-height-full mud-width-full">
+                                    <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(5)" />
+                                </div>
                             </div>
                             <div class="square bottom left" tabindex="0">
-                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(6)" />
-                                <div class="@cellValues[6]"> </div>
-
+                                <div class="@cellValues[6] mud-height-full mud-width-full">
+                                    <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(6)" />
+                                </div>
                             </div>
                             <div class="square bottom" tabindex="0">
-                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(7)" />
-                                <div class="@cellValues[7]"> </div>
-
+                                <div class="@cellValues[7] mud-height-full mud-width-full">
+                                    <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(7)" />
+                                </div>
                             </div>
                             <div class="square bottom right" tabindex="0">
-                                <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(8)" />
-                                <div class="@cellValues[8]"> </div>
-
+                                <div class="@cellValues[8] mud-height-full mud-width-full">
+                                    <MudButton Class="mud-height-full mud-width-full" OnClick="()=>Move(8)" />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </MudItem>
                 <MudItem xs="3">
-                    <MudText Align="Align.Center" Typo="Typo.h4">
+                    <MudText  Align="Align.Center" Typo="Typo.h6">
                         @opponent.Name
                     </MudText>
                 </MudItem>
@@ -91,7 +101,9 @@
     private string cellValueTag = "div";
     private string[] cellValues = Enumerable.Repeat(string.Empty, 9).ToArray();
     private bool isLoading = true;
+    private bool isGameOver = false;
     private string loadingMessage = "Loading...";
+    private string gameOverMessage = "Game Over";
     private GameState? currentGameState;
     private Guid gameTypeId;
     private Player? me;
@@ -105,6 +117,15 @@
         gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
         await TryFindOpponent();
         // await UpdateGameState();
+    }
+    private async Task Restart()
+    {
+        cellValues = Enumerable.Repeat(string.Empty, 9).ToArray();
+        isGameOver = false;
+        isLoading = true;
+        opponent=new("Opponent");
+        currentGameState = null;
+        await TryFindOpponent();
     }
     private async Task TryFindOpponent()
     {
@@ -139,6 +160,18 @@
             if (field[i] == 0) cellValues[i] = "o";
             if (field[i] == 1) cellValues[i] = "x";
         }
+        if (currentGameState.IsGameOver)
+        {
+            isGameOver = true;
+            if (currentGameState.Winner != null)
+                gameOverMessage = currentGameState.Winner.Id == me.Id ? "Game over! You win!" : "Game over! You lose!";
+
+            if (currentGameState.IsDraw == true)
+                gameOverMessage = "Game over! Draw!";
+        }
+
+        StateHasChanged();
+
     }
     private async Task HandleGameStart(Guid gameStateId)
     {
@@ -149,7 +182,7 @@
     private async Task HandleOpponentFound(Guid opponentId)
     {
         isLoading = false;
-        Snackbar.Add($"Opponent found!{opponentId}", Severity.Success);
+        Snackbar.Add("Opponent found!", Severity.Success);
         Guid? gameStateId = await TTTClient.StartGame(new(me.Id, opponentId, gameTypeId));
         if (gameStateId!=null)
         {

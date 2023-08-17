@@ -16,7 +16,8 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    FieldSize = table.Column<int>(type: "int", nullable: false)
+                    FieldSize = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,7 +35,6 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     LookingForOpponent = table.Column<bool>(type: "bit", nullable: false),
                     GameStarted = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ConnectionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OpponentId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CurrentGameTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
@@ -44,11 +44,6 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                         name: "FK_Players_GameTypes_CurrentGameTypeId",
                         column: x => x.CurrentGameTypeId,
                         principalTable: "GameTypes",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Players_Players_OpponentId",
-                        column: x => x.OpponentId,
-                        principalTable: "Players",
                         principalColumn: "Id");
                 });
 
@@ -88,6 +83,11 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.InsertData(
+                table: "GameTypes",
+                columns: new[] { "Id", "FieldSize", "Name" },
+                values: new object[] { new Guid("706c2e99-6f6c-4472-81a5-43c56e11637c"), 9, "" });
+
             migrationBuilder.CreateIndex(
                 name: "IX_GameStates_GameTypeId",
                 table: "GameStates",
@@ -107,11 +107,6 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                 name: "IX_Players_CurrentGameTypeId",
                 table: "Players",
                 column: "CurrentGameTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Players_OpponentId",
-                table: "Players",
-                column: "OpponentId");
         }
 
         /// <inheritdoc />

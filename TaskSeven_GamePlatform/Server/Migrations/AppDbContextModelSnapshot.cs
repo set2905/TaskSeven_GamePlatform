@@ -59,6 +59,9 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.Property<int>("SecondsPerMove")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("WinnerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("GameTypeId");
@@ -66,6 +69,8 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.HasIndex("Player1Id");
 
                     b.HasIndex("Player2Id");
+
+                    b.HasIndex("WinnerId");
 
                     b.ToTable("GameStates");
                 });
@@ -121,9 +126,6 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("OpponentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("WaitingForMove")
                         .HasColumnType("bit");
 
@@ -150,11 +152,17 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                         .WithMany()
                         .HasForeignKey("Player2Id");
 
+                    b.HasOne("TaskSeven_GamePlatform.Shared.Models.Player", "Winner")
+                        .WithMany()
+                        .HasForeignKey("WinnerId");
+
                     b.Navigation("GameType");
 
                     b.Navigation("Player1");
 
                     b.Navigation("Player2");
+
+                    b.Navigation("Winner");
                 });
 
             modelBuilder.Entity("TaskSeven_GamePlatform.Shared.Models.Player", b =>

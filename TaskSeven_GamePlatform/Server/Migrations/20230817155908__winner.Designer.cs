@@ -12,8 +12,8 @@ using TaskSeven_GamePlatform.Server.Domain;
 namespace TaskSeven_GamePlatform.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230816131232__init")]
-    partial class _init
+    [Migration("20230817155908__winner")]
+    partial class _winner
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,6 +21,9 @@ namespace TaskSeven_GamePlatform.Server.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "7.0.10")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true)
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -59,6 +62,9 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.Property<int>("SecondsPerMove")
                         .HasColumnType("int");
 
+                    b.Property<Guid?>("WinnerId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
                     b.HasIndex("GameTypeId");
@@ -66,6 +72,8 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.HasIndex("Player1Id");
 
                     b.HasIndex("Player2Id");
+
+                    b.HasIndex("WinnerId");
 
                     b.ToTable("GameStates");
                 });
@@ -79,12 +87,24 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.Property<int>("FieldSize")
                         .HasColumnType("int");
 
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("GameTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("706c2e99-6f6c-4472-81a5-43c56e11637c"),
+                            FieldSize = 9,
+                            Name = ""
+                        });
                 });
 
-            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.Player", b =>
+            modelBuilder.Entity("TaskSeven_GamePlatform.Shared.Models.Player", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -109,17 +129,12 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("OpponentId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("WaitingForMove")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CurrentGameTypeId");
-
-                    b.HasIndex("OpponentId");
 
                     b.ToTable("Players");
                 });
@@ -132,34 +147,34 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.Player", "Player1")
+                    b.HasOne("TaskSeven_GamePlatform.Shared.Models.Player", "Player1")
                         .WithMany()
                         .HasForeignKey("Player1Id");
 
-                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.Player", "Player2")
+                    b.HasOne("TaskSeven_GamePlatform.Shared.Models.Player", "Player2")
                         .WithMany()
                         .HasForeignKey("Player2Id");
+
+                    b.HasOne("TaskSeven_GamePlatform.Shared.Models.Player", "Winner")
+                        .WithMany()
+                        .HasForeignKey("WinnerId");
 
                     b.Navigation("GameType");
 
                     b.Navigation("Player1");
 
                     b.Navigation("Player2");
+
+                    b.Navigation("Winner");
                 });
 
-            modelBuilder.Entity("TaskSeven_GamePlatforms.Shared.Models.Player", b =>
+            modelBuilder.Entity("TaskSeven_GamePlatform.Shared.Models.Player", b =>
                 {
                     b.HasOne("TaskSeven_GamePlatform.Shared.Models.GameType", "CurrentGameType")
                         .WithMany()
                         .HasForeignKey("CurrentGameTypeId");
 
-                    b.HasOne("TaskSeven_GamePlatforms.Shared.Models.Player", "Opponent")
-                        .WithMany()
-                        .HasForeignKey("OpponentId");
-
                     b.Navigation("CurrentGameType");
-
-                    b.Navigation("Opponent");
                 });
 #pragma warning restore 612, 618
         }

@@ -51,33 +51,65 @@ namespace TaskSeven_GamePlatform.Server.Services
 
             await SetPlayerGameStart(player1, gameType);
             await SetPlayerGameStart(player2, gameType);
+            player1.WaitingForMove=true;
+            player2.WaitingForMove=false;
+            await playerRepo.Save(player1);
+            await playerRepo.Save(player2);
+
 
             GameState state = new(player1, player2, gameType);
             return await stateRepo.Save(state);
 
         }
 
-        public async Task<bool> Play(TicTacToeMarker player, int position, GameState state)
+        public async Task<bool> Play(Guid playerId, int position, GameState gameState)
         {
-            if (state.IsGameOver)
+            if (gameState.IsGameOver)
+                return false;
+            Player? player = await playerRepo.GetById(playerId);
+            Player[] players = new Player[] { gameState.Player1, gameState.Player2 };
+            Player? opponnent = await playerRepo.GetById(players.Single(p => p.Id!=playerId).Id);
+            if (player==null||player.WaitingForMove)
                 return false;
 
-            state.MovesLeft -= 1;
-            if (state.MovesLeft <= 0||(DateTime.Now-state.LastMove).Seconds>state.SecondsPerMove)
+            if (gameState.MovesLeft <= 0||(DateTime.Now-gameState.LastMove).Seconds>gameState.SecondsPerMove)
             {
-                state.IsGameOver = true;
-                state.IsDraw = true;
-                await stateRepo.Save(state);
+                gameState.IsGameOver = true;
+                gameState.IsDraw = true;
+                player.IsPlaying=false;
+                opponnent.IsPlaying=false;
+                await playerRepo.Save(player);
+                await playerRepo.Save(opponnent);
+
+                await stateRepo.Save(gameState);
                 return false;
             }
-            int[]? field = JsonSerializer.Deserialize<int[]>(state.Field, options);
+            gameState.MovesLeft -= 1;
+
+            int[]? field = JsonSerializer.Deserialize<int[]>(gameState.Field, options);
 
             if (!VerifyMove(position, field)) return false;
 
-            PlaceMarker((int)player, position, field);
-            state.IsGameOver = CheckWinner(field);
-            state.Field=JsonSerializer.Serialize(field, options);
-            await stateRepo.Save(state);
+
+            TicTacToeMarker marker;
+            marker=gameState.Player1.Id==playerId ? TicTacToeMarker.X : TicTacToeMarker.O;
+
+            PlaceMarker((int)marker, position, field);
+            if (CheckWinner(field))
+            {
+                gameState.IsGameOver = true;
+                gameState.Winner=player;
+                player.IsPlaying=false;
+                opponnent.IsPlaying=false;
+            }
+            gameState.Field=JsonSerializer.Serialize(field, options);
+            gameState.LastMove=DateTime.Now;
+            await stateRepo.Save(gameState);
+            player.WaitingForMove=true;
+            opponnent.WaitingForMove=false;
+
+            await playerRepo.Save(player);
+            await playerRepo.Save(opponnent);
             return true;
         }
         private async Task SetPlayerGameStart(Player player, GameType gameType)
@@ -86,7 +118,6 @@ namespace TaskSeven_GamePlatform.Server.Services
             player.CurrentGameType=gameType;
             player.GameStarted=DateTime.Now;
             player.IsPlaying=true;
-            await playerRepo.Save(player);
         }
         private async Task SetPlayerGameEnd(Player player)
         {

@@ -12,8 +12,8 @@ using TaskSeven_GamePlatform.Server.Domain;
 namespace TaskSeven_GamePlatform.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230817144207__lazyLoading")]
-    partial class _lazyLoading
+    [Migration("20230817144935__init")]
+    partial class _init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -123,9 +123,6 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid?>("OpponentId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("WaitingForMove")
                         .HasColumnType("bit");

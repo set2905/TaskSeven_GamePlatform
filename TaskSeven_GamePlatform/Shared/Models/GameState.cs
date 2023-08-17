@@ -11,11 +11,13 @@ namespace TaskSeven_GamePlatform.Shared.Models
             Field=string.Empty;
         }
 
-        public GameState(Player player1, Player player2, GameType gameType)
+        public GameState(Player player1, Player player2, GameType gameType, int secondsPerMove=30)
         {
             Player1=player1;
             Player2=player2;
             GameType=gameType;
+            IsDraw=false;
+            IsGameOver=false;
             var options = new JsonSerializerOptions
             {
                 Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
@@ -25,6 +27,9 @@ namespace TaskSeven_GamePlatform.Shared.Models
             {
                 field[i] = -1;
             }
+            MovesLeft=field.Length;
+            LastMove=DateTime.Now;
+            SecondsPerMove=secondsPerMove;
             Field=JsonSerializer.Serialize(field, options);
         }
 
@@ -36,6 +41,7 @@ namespace TaskSeven_GamePlatform.Shared.Models
         public virtual Player? Player1 { get; set; }
 
         public virtual Player? Player2 { get; set; }
+        public virtual Player? Winner { get; set; }
 
         public string Field { get; set; }
         public int MovesLeft { get; set; }
