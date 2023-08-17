@@ -29,7 +29,12 @@ namespace TaskSeven_GamePlatform.Server.Services
         }
         public async Task<GameState?> GetGameState(Guid id)
         {
-            return await stateRepo.GetById(id);
+            GameState? gameState = await stateRepo.GetById(id);
+            if (gameState!=null)
+            {
+                await CheckDraw(gameState);
+            }
+            return gameState;
         }
         public async Task<bool> ExitGame(Guid playerId)
         {
@@ -68,7 +73,7 @@ namespace TaskSeven_GamePlatform.Server.Services
                 return false;
             Player? player = await playerRepo.GetById(playerId);
             Player[] players = new Player[] { gameState.Player1, gameState.Player2 };
-            Player? opponnent = await playerRepo.GetById(players.Single(p => p.Id!=playerId).Id);
+            Player? opponent = await playerRepo.GetById(players.Single(p => p.Id!=playerId).Id);
             if (player==null||player.WaitingForMove)
                 return false;
 
@@ -90,28 +95,34 @@ namespace TaskSeven_GamePlatform.Server.Services
                 gameState.IsGameOver = true;
                 gameState.Winner=player;
                 player.IsPlaying=false;
-                opponnent.IsPlaying=false;
+                opponent.IsPlaying=false;
             }
-            else if (gameState.MovesLeft <= 0||(DateTime.Now-gameState.LastMove).Seconds>gameState.SecondsPerMove)
-            {
-                gameState.IsGameOver = true;
-                gameState.IsDraw = true;
-                player.IsPlaying=false;
-                opponnent.IsPlaying=false;
-                await playerRepo.Save(player);
-                await playerRepo.Save(opponnent);
-                await stateRepo.Save(gameState);
+            else if (await CheckDraw(gameState))
                 return false;
-            }
             gameState.Field=JsonSerializer.Serialize(field, options);
             gameState.LastMove=DateTime.Now;
             await stateRepo.Save(gameState);
             player.WaitingForMove=true;
-            opponnent.WaitingForMove=false;
+            opponent.WaitingForMove=false;
 
             await playerRepo.Save(player);
-            await playerRepo.Save(opponnent);
+            await playerRepo.Save(opponent);
             return true;
+        }
+        private async Task<bool> CheckDraw(GameState gameState)
+        {
+            if (gameState.MovesLeft <= 0||(DateTime.Now-gameState.LastMove).Seconds>gameState.SecondsPerMove)
+            {
+                gameState.IsGameOver = true;
+                gameState.IsDraw = true;
+                gameState.Player1.IsPlaying=false;
+                gameState.Player2.IsPlaying=false;
+                await playerRepo.Save(gameState.Player1);
+                await playerRepo.Save(gameState.Player2);
+                await stateRepo.Save(gameState);
+                return true;
+            }
+            return false;
         }
         private async Task SetPlayerGameStart(Player player, GameType gameType)
         {
