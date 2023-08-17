@@ -41,6 +41,9 @@
                     </MudText>
                 </MudItem>
                 <MudItem Class="d-flex flex-column align-center justify-center" xs="6">
+                    <MudText>
+                        @turnCounter
+                    </MudText>
                     <div class="game">
                         <div class="board">
                             <div class="square top left" tabindex="0">
@@ -105,6 +108,9 @@
 
 
 @code {
+
+    private static System.Timers.Timer countDownTurnTimer = new System.Timers.Timer(1000);
+    private int turnCounter;
     private JsonSerializerOptions options = new JsonSerializerOptions
         {
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
@@ -127,6 +133,8 @@
     {
         nameDialogVisible=true;
         StateHasChanged();
+        countDownTurnTimer.Elapsed += CountDownTimer;
+
     }
     private async Task Restart()
     {
@@ -187,7 +195,7 @@
             if (currentGameState.IsDraw == true)
                 gameOverMessage = "Game over! Draw!";
         }
-
+        RestartTimer();
         StateHasChanged();
 
     }
@@ -227,8 +235,11 @@
         if (currentGameState == null||player==null||opponent.ConnectionId==null) return;
         bool? result = await TTTClient.Move(new(player.Id, currentGameState.Id, pos));
         if (result == null) return;
-        await UpdateGameState();
-        await TTTHub.NotifyGameStateUpdate(opponent.ConnectionId);
+        if (result == true)
+        {
+            await UpdateGameState();
+            await TTTHub.NotifyGameStateUpdate(opponent.ConnectionId);
+        }
     }
     private void ShowError(string message)
     {
@@ -248,5 +259,26 @@
         gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
         await TryFindOpponent();
 
+    }
+    public void RestartTimer()
+    {
+        if (currentGameState == null) return;
+        turnCounter = currentGameState.SecondsPerMove;
+        StateHasChanged();
+        countDownTurnTimer.Enabled = true;
+    }
+
+    public void CountDownTimer(Object source, System.Timers.ElapsedEventArgs e)
+    {
+        if (turnCounter > 0)
+        {
+            turnCounter -= 1;
+        }
+        else
+        {
+            countDownTurnTimer.Enabled = false;
+            UpdateGameState();
+        }
+        InvokeAsync(StateHasChanged);
     }
 }
