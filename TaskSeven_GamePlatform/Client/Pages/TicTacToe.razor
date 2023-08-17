@@ -17,8 +17,10 @@
     </MudPaper>
 </MudOverlay>
 <MudOverlay @bind-Visible="@isLoading" DarkBackground="true">
-    <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" Style="width:50vw" />
-    @*<MudText Typo="Typo.h1">@loadingMessage</MudText>*@
+    <MudPaper Class="pa-12">
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" Style="width:50vw" />
+        <MudText Align="Align.Center" Typo="Typo.h4">@loadingMessage</MudText>
+    </MudPaper>
 </MudOverlay>
 <MudGrid>
     <MudItem xs="12">
@@ -81,7 +83,7 @@
                     </div>
                 </MudItem>
                 <MudItem xs="3">
-                    <MudText  Align="Align.Center" Typo="Typo.h6">
+                    <MudText Align="Align.Center" Typo="Typo.h6">
                         @opponent.Name
                     </MudText>
                 </MudItem>
@@ -102,7 +104,7 @@
     private string[] cellValues = Enumerable.Repeat(string.Empty, 9).ToArray();
     private bool isLoading = true;
     private bool isGameOver = false;
-    private string loadingMessage = "Loading...";
+    private string loadingMessage = "Looking for opponent...";
     private string gameOverMessage = "Game Over";
     private GameState? currentGameState;
     private Guid gameTypeId;
@@ -112,7 +114,7 @@
     {
         await InitializePlayer();
         TTTHub.OnGameStateUpdate += UpdateGameState;
-        TTTHub.OnOpponentFound += HandleOpponentFound;
+        TTTHub.OnOpponentFoundYou += HandleOpponentFoundYou;
         TTTHub.OnGameStarted += HandleGameStart;
         gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
         await TryFindOpponent();
@@ -129,12 +131,18 @@
     }
     private async Task TryFindOpponent()
     {
-        Player? foundOpponent = await TTTClient.StartGameSearch(new(me.Id, gameTypeId));
-        if (foundOpponent!=null)
+        while (opponent.Id == default)
         {
-            Snackbar.Add($"Opponent found!", Severity.Success);
-            await TTTHub.NotifyFoundYou(foundOpponent.ConnectionId, me.Id);
-            opponent = foundOpponent;
+            Player? foundOpponent = await TTTClient.StartGameSearch(new(me.Id, gameTypeId));
+            if (foundOpponent != null)
+            {
+                loadingMessage = "Opponent found! Waiting for game to start.";
+                await TTTHub.NotifyFoundYou(foundOpponent.ConnectionId, me.Id);
+                opponent = foundOpponent;
+            }
+            else
+                loadingMessage = "Looking for opponent...";
+            await Task.Delay(7000);
         }
     }
     private async Task InitializePlayer()
@@ -179,7 +187,7 @@
         StateHasChanged();
         await UpdateGameState(gameStateId);
     }
-    private async Task HandleOpponentFound(Guid opponentId)
+    private async Task HandleOpponentFoundYou(Guid opponentId)
     {
         isLoading = false;
         Snackbar.Add("Opponent found!", Severity.Success);

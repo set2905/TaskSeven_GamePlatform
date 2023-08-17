@@ -26,6 +26,7 @@ namespace TaskSeven_GamePlatform.Shared.Models
         public bool IsPlaying { get; set; }
         public bool WaitingForMove { get; set; }
         public bool LookingForOpponent { get; set; }
+        public DateTime GameSearchStarted { get; set; }
         public DateTime GameStarted { get; set; }
         public string? ConnectionId { get; set; }
         public virtual GameType? CurrentGameType { get; set; }

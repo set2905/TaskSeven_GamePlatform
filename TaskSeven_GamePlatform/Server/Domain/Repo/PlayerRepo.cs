@@ -6,6 +6,8 @@ namespace TaskSeven_GamePlatform.Server.Domain.Repo
 {
     public class PlayerRepo : IPlayerRepo
     {
+        private const int GAMESEARCH_INVALIDAFTERSECONDS = 10;
+
         private readonly AppDbContext context;
 
         public PlayerRepo(AppDbContext context)
@@ -17,9 +19,13 @@ namespace TaskSeven_GamePlatform.Server.Domain.Repo
             return await context.Players.SingleOrDefaultAsync(x => x.Name == name);
 
         }
-        public async Task<Player?> FindOpponent(GameType game)
+        public async Task<Player?> FindOpponent(GameType game, Guid playerId)
         {
-            return await context.Players.FirstOrDefaultAsync(p => p.LookingForOpponent&&p.CurrentGameType==game);
+            DateTime allowedGameSearchStart = DateTime.Now.Subtract(TimeSpan.FromSeconds(GAMESEARCH_INVALIDAFTERSECONDS));
+            return await context.Players.FirstOrDefaultAsync(p => p.Id!=playerId
+                                                                  &&p.LookingForOpponent
+                                                                  && p.CurrentGameType==game
+                                                                  && p.GameSearchStarted>allowedGameSearchStart);
         }
         public async Task<bool> Delete(Player entity)
         {

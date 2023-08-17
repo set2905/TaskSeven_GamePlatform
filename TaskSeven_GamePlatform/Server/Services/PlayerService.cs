@@ -57,14 +57,10 @@ namespace TaskSeven_GamePlatform.Server.Services
             GameType? gameType = await gameTypeRepo.GetById(gameTypeId);
             if (gameType==null) return null;
             player.CurrentGameType=gameType;
-
-            Player? opponent = await playerRepo.FindOpponent(gameType);
-            if (opponent==null)
-            {
-                player.LookingForOpponent = true;
-                await playerRepo.Save(player);
-                return null;
-            }
+            player.GameSearchStarted=DateTime.Now;
+            Player? opponent = await playerRepo.FindOpponent(gameType, player.Id);
+            if (opponent==null) player.LookingForOpponent = true;
+            await playerRepo.Save(player);
             return opponent;
         }
     }

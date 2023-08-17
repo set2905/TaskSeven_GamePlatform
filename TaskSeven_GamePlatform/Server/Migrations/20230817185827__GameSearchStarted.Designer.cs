@@ -12,8 +12,8 @@ using TaskSeven_GamePlatform.Server.Domain;
 namespace TaskSeven_GamePlatform.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230817155908__winner")]
-    partial class _winner
+    [Migration("20230817185827__GameSearchStarted")]
+    partial class _GameSearchStarted
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -117,6 +117,9 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("GameSearchStarted")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("GameStarted")
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsPlaying")

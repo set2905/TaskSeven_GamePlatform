@@ -2,7 +2,7 @@
 {
     public interface IHubTicTacToeClient
     {
-        public event IdDelegate? OnOpponentFound;
+        public event IdDelegate? OnOpponentFoundYou;
         public event IdDelegate? OnGameStarted;
         public event GameStateUpdate? OnGameStateUpdate;
         public Task NotifyGameStateUpdate(string opponentConnId);

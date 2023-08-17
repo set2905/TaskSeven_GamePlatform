@@ -113,6 +113,9 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                     b.Property<Guid?>("CurrentGameTypeId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("GameSearchStarted")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("GameStarted")
                         .HasColumnType("datetime2");
 
