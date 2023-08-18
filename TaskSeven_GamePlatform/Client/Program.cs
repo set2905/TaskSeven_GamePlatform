@@ -10,7 +10,7 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-builder.Services.AddScoped<IHubTicTacToeClient, HubTicTacToeClient>();
+builder.Services.AddScoped<IGameSessionHub, GameSessionHub>();
 builder.Services.AddScoped<ITicTacToeClientService, TicTacToeClientService>();
 builder.Services.AddScoped<IPlayerClientService, PlayerClientService>();
 builder.Services.AddScoped<TicTacToeSessionService>();

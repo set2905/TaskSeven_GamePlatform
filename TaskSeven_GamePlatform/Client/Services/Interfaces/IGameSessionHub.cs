@@ -1,6 +1,6 @@
 ﻿namespace TaskSeven_GamePlatform.Client.Services.Interfaces
 {
-    public interface IHubTicTacToeClient
+    public interface IGameSessionHub
     {
         public event IdDelegate? OnOpponentFoundYou;
         public event IdDelegate? OnGameStarted;

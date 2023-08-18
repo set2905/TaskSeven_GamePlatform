@@ -4,14 +4,14 @@ using TaskSeven_GamePlatform.Client.Services.Interfaces;
 
 namespace TaskSeven_GamePlatform.Client.Services
 {
-    public class HubTicTacToeClient : IHubTicTacToeClient
+    public class GameSessionHub : IGameSessionHub
     {
         HubConnection hubConnection;
         NavigationManager navigation;
         public event GameStateUpdate? OnGameStateUpdate;
         public event IdDelegate? OnOpponentFoundYou;
         public event IdDelegate? OnGameStarted;
-        public HubTicTacToeClient(NavigationManager navigation)
+        public GameSessionHub(NavigationManager navigation)
         {
             this.navigation=navigation;
         }
