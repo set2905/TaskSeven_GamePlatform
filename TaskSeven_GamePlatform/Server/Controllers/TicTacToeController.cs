@@ -30,7 +30,7 @@ namespace TaskSeven_GamePlatform.Server.Controllers
         [Route("GameState")]
         public async Task<IActionResult> GetGameState(GetByIdRequestModel model)
         {
-            GameState? gameState = await tttService.GetGameState(model.Id);
+            GameState? gameState = await tttService.UpdateGameState(model.Id);
             if (gameState == null) return BadRequest("Gamestate with provided id not found");
             return new JsonResult(gameState);
         }
@@ -86,7 +86,7 @@ namespace TaskSeven_GamePlatform.Server.Controllers
         [Route("Move")]
         public async Task<IActionResult> Move(MoveRequestModel model)
         {
-            GameState? gameState = await tttService.GetGameState(model.StateId);
+            GameState? gameState = await tttService.UpdateGameState(model.StateId);
             if (gameState == null) return BadRequest("Gamestate with provided id not found");
             if (gameState.Player1.Id!=model.PlayerId&&gameState.Player2.Id!=model.PlayerId)
                 return BadRequest("You dont belong here");

@@ -13,6 +13,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped<IHubTicTacToeClient, HubTicTacToeClient>();
 builder.Services.AddScoped<ITicTacToeClientService, TicTacToeClientService>();
 builder.Services.AddScoped<IPlayerClientService, PlayerClientService>();
+builder.Services.AddScoped<TicTacToeSessionService>();
 
 builder.Services.AddMudServices();
 

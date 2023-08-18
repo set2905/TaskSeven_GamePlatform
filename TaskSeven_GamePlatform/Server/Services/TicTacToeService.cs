@@ -38,8 +38,8 @@ namespace TaskSeven_GamePlatform.Server.Services
                 player.IsPlaying=false;
                 opponent.IsPlaying=false;
             }
-            else if (await CheckDraw(gameState))
-                return false;
+            else if (await TrySetDraw(gameState))
+                return true;
             gameState.Field=JsonSerializer.Serialize(field, options);
             gameState.LastMove=DateTime.Now;
             await stateRepo.Save(gameState);
@@ -50,7 +50,7 @@ namespace TaskSeven_GamePlatform.Server.Services
             await playerRepo.Save(opponent);
             return true;
         }
-        protected override async Task<bool> CheckDraw(GameState gameState)
+        protected override async Task<bool> TrySetDraw(GameState gameState)
         {
             if (gameState.Player1==null||gameState.Player2==null)
                 throw new ArgumentNullException();

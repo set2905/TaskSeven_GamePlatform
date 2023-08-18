@@ -24,14 +24,14 @@ namespace TaskSeven_GamePlatform.Server.Services
             this.gameTypeRepo=gameTypeRepo;
         }
         public abstract Task<bool> Play(Guid playerId, int position, GameState gameState);
-        protected abstract Task<bool> CheckDraw(GameState gameState);
+        protected abstract Task<bool> TrySetDraw(GameState gameState);
 
-        public virtual async Task<GameState?> GetGameState(Guid id)
+        public virtual async Task<GameState?> UpdateGameState(Guid id)
         {
             GameState? gameState = await stateRepo.GetById(id);
-            if (gameState!=null)
+            if (gameState!=null&&!gameState.IsGameOver)
             {
-                await CheckDraw(gameState);
+                await TrySetDraw(gameState);
             }
             return gameState;
         }
