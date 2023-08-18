@@ -7,6 +7,13 @@ using TaskSeven_GamePlatform.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Shared.Models
 {
+    public enum RockPaperScissorsMarker
+    {
+        Empty = -1,
+        Rock = 0,
+        Paper = 1,
+        Scissors = 2
+    }
     public enum TicTacToeMarker
     {
         Empty = -1,

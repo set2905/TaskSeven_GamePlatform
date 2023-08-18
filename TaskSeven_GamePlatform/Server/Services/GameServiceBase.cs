@@ -65,14 +65,17 @@ namespace TaskSeven_GamePlatform.Server.Services
             return await stateRepo.Save(state);
 
         }
-        private void SetPlayerGameStart(Player player, GameType gameType)
+       
+
+
+        protected void SetPlayerGameStart(Player player, GameType gameType)
         {
             player.LookingForOpponent=false;
             player.CurrentGameType=gameType;
             player.GameStarted=DateTime.Now;
             player.IsPlaying=true;
         }
-        private void SetPlayerGameEnd(Player player)
+        protected void SetPlayerGameEnd(Player player)
         {
             player.LookingForOpponent=false;
             player.CurrentGameType=null;
