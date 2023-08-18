@@ -7,85 +7,26 @@ using TaskSeven_GamePlatform.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Services
 {
-
-    //В абстрактный класс!!!
-
-    public class TicTacToeService : ITicTacToeService
+    public class TicTacToeService : GameServiceBase, ITicTacToeService
     {
-        private readonly IGameStateRepo stateRepo;
-        private readonly IPlayerRepo playerRepo;
-        private readonly IGameTypeRepo gameTypeRepo;
-        JsonSerializerOptions options;
-
-        public TicTacToeService(IGameStateRepo stateRepo, IPlayerRepo playerRepo, IGameTypeRepo gameTypeRepo)
+        public TicTacToeService(IGameStateRepo stateRepo, IPlayerRepo playerRepo, IGameTypeRepo gameTypeRepo) : base(stateRepo, playerRepo, gameTypeRepo)
         {
-            this.stateRepo=stateRepo;
-            options = new JsonSerializerOptions
-            {
-                Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
-            };
-            this.playerRepo=playerRepo;
-            this.gameTypeRepo=gameTypeRepo;
         }
-        public async Task<GameState?> GetGameState(Guid id)
+        public override async Task<bool> Play(Guid playerId, int position, GameState gameState)
         {
-            GameState? gameState = await stateRepo.GetById(id);
-            if (gameState!=null)
-            {
-                await CheckDraw(gameState);
-            }
-            return gameState;
-        }
-        public async Task<bool> ExitGame(Guid playerId)
-        {
-            Player? player = await playerRepo.GetById(playerId);
-            if (player == null) return false;
-            await SetPlayerGameEnd(player);
-            return true;
-        }
-        public async Task<Guid?> StartGame(Guid playerId, Guid opponentId, Guid gameTypeId)
-        {
-            Player? player1 = await playerRepo.GetById(playerId);
-            Player? player2 = await playerRepo.GetById(opponentId);
-            GameType? gameType = await gameTypeRepo.GetById(gameTypeId);
-
-            if (player1 == null || player2 == null||gameType == null)
-                return null;
-            if (player1.IsPlaying||player2.IsPlaying||player1.CurrentGameTypeId!=gameTypeId||player2.CurrentGameTypeId!=gameTypeId)
-                return null;
-
-            await SetPlayerGameStart(player1, gameType);
-            await SetPlayerGameStart(player2, gameType);
-            player1.WaitingForMove=true;
-            player2.WaitingForMove=false;
-            await playerRepo.Save(player1);
-            await playerRepo.Save(player2);
-
-
-            GameState state = new(player1, player2, gameType);
-            return await stateRepo.Save(state);
-
-        }
-
-        public async Task<bool> Play(Guid playerId, int position, GameState gameState)
-        {
-            if (gameState.IsGameOver)
-                return false;
-            Player? player = await playerRepo.GetById(playerId);
+            if (gameState.IsGameOver) return false;
+            if (gameState.Player1==null||gameState.Player2==null) throw new ArgumentNullException("One or more of the players in game state is null");
             Player[] players = new Player[] { gameState.Player1, gameState.Player2 };
-            Player? opponent = await playerRepo.GetById(players.Single(p => p.Id!=playerId).Id);
-            if (player==null||player.WaitingForMove)
-                return false;
+            Player? opponent = players.SingleOrDefault(p => p.Id!=playerId);
+            Player? player = players.SingleOrDefault(p => p.Id==playerId);
+            if(player==null||opponent==null) throw new ArgumentNullException("One or more of the players in game state is null");
+
+            if (player.WaitingForMove) return false;
 
             gameState.MovesLeft -= 1;
-
-
-
             int[]? field = JsonSerializer.Deserialize<int[]>(gameState.Field, options);
-
+            if (field==null) throw new ArgumentNullException("Game field is null");
             if (!VerifyMove(position, field)) return false;
-
-
             TicTacToeMarker marker;
             marker=gameState.Player1.Id==playerId ? TicTacToeMarker.X : TicTacToeMarker.O;
 
@@ -109,8 +50,10 @@ namespace TaskSeven_GamePlatform.Server.Services
             await playerRepo.Save(opponent);
             return true;
         }
-        private async Task<bool> CheckDraw(GameState gameState)
+        protected override async Task<bool> CheckDraw(GameState gameState)
         {
+            if (gameState.Player1==null||gameState.Player2==null)
+                throw new ArgumentNullException();
             if (gameState.MovesLeft <= 0||(DateTime.Now-gameState.LastMove).Seconds>gameState.SecondsPerMove)
             {
                 gameState.IsGameOver = true;
@@ -124,20 +67,7 @@ namespace TaskSeven_GamePlatform.Server.Services
             }
             return false;
         }
-        private async Task SetPlayerGameStart(Player player, GameType gameType)
-        {
-            player.LookingForOpponent=false;
-            player.CurrentGameType=gameType;
-            player.GameStarted=DateTime.Now;
-            player.IsPlaying=true;
-        }
-        private async Task SetPlayerGameEnd(Player player)
-        {
-            player.LookingForOpponent=false;
-            player.CurrentGameType=null;
-            player.IsPlaying=false;
-            await playerRepo.Save(player);
-        }
+
         private bool VerifyMove(int position, int[] field)
         {
             if (field[position] != -1)
