@@ -91,7 +91,7 @@ namespace TaskSeven_GamePlatform.Server.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_GameStates_GameTypeId",
                 table: "GameStates",
-                column: "GameTypeId");
+                column: "GameTypeName");
 
             migrationBuilder.CreateIndex(
                 name: "IX_GameStates_Player1Id",

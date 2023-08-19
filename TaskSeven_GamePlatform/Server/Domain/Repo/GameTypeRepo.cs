@@ -30,7 +30,11 @@ namespace TaskSeven_GamePlatform.Server.Domain.Repo
             return await context.GameTypes.SingleOrDefaultAsync(x => x.Id == id);
 
         }
+        public async Task<GameType?> GetByName(string name)
+        {
+            return await context.GameTypes.SingleOrDefaultAsync(x => x.Name == name);
 
+        }
         public async Task<Guid> Save(GameType entity)
         {
             if (entity.Id == default)

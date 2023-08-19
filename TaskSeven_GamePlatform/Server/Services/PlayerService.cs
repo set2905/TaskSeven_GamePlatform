@@ -1,5 +1,4 @@
-﻿using System.Security.AccessControl;
-using TaskSeven_GamePlatform.Server.Domain.Repo.Interfaces;
+﻿using TaskSeven_GamePlatform.Server.Domain.Repo.Interfaces;
 using TaskSeven_GamePlatform.Server.Services.Interfaces;
 using TaskSeven_GamePlatform.Shared.Models;
 
@@ -39,9 +38,9 @@ namespace TaskSeven_GamePlatform.Server.Services
             await playerRepo.Save(player);
             return true;
         }
-        public async Task<Player?> SetGameTypeToPlayer(Guid playerId, Guid gameTypeId)
+        public async Task<Player?> SetGameTypeToPlayer(Guid playerId, string gameTypeName)
         {
-            GameType? gameType = await gameTypeRepo.GetById(gameTypeId);
+            GameType? gameType = await gameTypeRepo.GetByName(gameTypeName);
             if (gameType==null) return null;
 
             Player? player = await playerRepo.GetById(playerId);
@@ -52,9 +51,9 @@ namespace TaskSeven_GamePlatform.Server.Services
             await playerRepo.Save(player);
             return player;
         }
-        public async Task<Player?> StartGameSearch(Player player, Guid gameTypeId)
+        public async Task<Player?> StartGameSearch(Player player, string gameTypeName)
         {
-            GameType? gameType = await gameTypeRepo.GetById(gameTypeId);
+            GameType? gameType = await gameTypeRepo.GetByName(gameTypeName);
             if (gameType==null) return null;
             player.CurrentGameType=gameType;
             player.GameSearchStarted=DateTime.Now;

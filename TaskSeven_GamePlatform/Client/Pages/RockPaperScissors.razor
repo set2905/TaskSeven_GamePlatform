@@ -1,9 +1,93 @@
 ﻿@page "/rockpaperscissors"
+@using TaskSeven_GamePlatform.Client.Services;
+@inject RockPaperScissorsSessionClientService sessionService
 
 <PageTitle>Rock Paper Scissors</PageTitle>
+<MudOverlay @bind-Visible="@sessionService.nameDialogVisible" DarkBackground="true">
+    <MudPaper Class="pa-12">
+        <MudStack AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <p>Your name</p>
+            <MudTextField @bind-Value="@sessionService.playerName" Class="mt-3" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="()=>sessionService.OnSubmitName(GAMENAME)" Class="px-10">Submit</MudButton>
+        </MudStack>
+    </MudPaper>
+</MudOverlay>
+<MudOverlay OnClick="@sessionService.Restart" @bind-Visible="@sessionService.isGameOver" DarkBackground="true">
+    <MudPaper>
+        <MudText Typo="Typo.h3">@sessionService.gameOverMessage</MudText>
+    </MudPaper>
+</MudOverlay>
+<MudOverlay @bind-Visible="@sessionService.isLoading" DarkBackground="true">
+    <MudPaper Class="pa-12">
+        <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" Style="width:100%" />
+        <MudText Align="Align.Center" Typo="Typo.h4">@sessionService.loadingMessage</MudText>
+    </MudPaper>
+</MudOverlay>
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Style="height:80vh" Class="d-flex align-center justify-center mud-height-full mud-width-full py-8">
+            <MudGrid>
+                <MudItem xs="3">
+                    <MudText Class="d-none d-md-block" Align="Align.Center" Typo="Typo.h6">
+                        You
+                    </MudText>
+                </MudItem>
+                <MudItem Class="d-flex flex-column align-center justify-center" xs="6">
+                    <MudText>
+                        @sessionService.turnCounter
+                    </MudText>
+                    <MudButton OnClick="()=>sessionService.Move(0)">Rock</MudButton>
+                    <MudButton OnClick="()=>sessionService.Move(1)">Paper</MudButton>
+                    <MudButton OnClick="()=>sessionService.Move(2)">Scissors</MudButton>
+                </MudItem>
+                <MudItem xs="3">
+                    <MudText Class="d-none d-md-block" Align="Align.Center" Typo="Typo.h6">
+                        @sessionService.opponent.Name
+                    </MudText>
+                    <MudText Align="Align.Center" Typo="Typo.h6">
+                        @sessionService.cellValues[1]
 
+                        @sessionService.cellValues[0]
+                    </MudText>
+                </MudItem>
+            </MudGrid>
+        </MudPaper>
+    </MudItem>
 
+</MudGrid>
 
 @code {
+    private static System.Timers.Timer countDownTurnTimer = new System.Timers.Timer(1000);
+    private string cellValueTag = "div";
+    private const string GAMENAME = "RockPaperScissors";
 
+    protected override async Task OnInitializedAsync()
+    {
+        StateHasChanged();
+        countDownTurnTimer.Elapsed += CountDownTimer;
+        sessionService.OnStateChange += StateHasChanged;
+        sessionService.OnRestartTimer += RestartTimer;
+    }
+
+    public void RestartTimer()
+    {
+        if (sessionService.currentGameState == null) return;
+        sessionService.turnCounter = sessionService.currentGameState.SecondsPerMove;
+        StateHasChanged();
+        countDownTurnTimer.Enabled = true;
+    }
+
+    public void CountDownTimer(Object? source, System.Timers.ElapsedEventArgs e)
+    {
+        if (sessionService.turnCounter > 0)
+        {
+            sessionService.turnCounter -= 1;
+        }
+        else
+        {
+            countDownTurnTimer.Enabled = false;
+            sessionService.UpdateGameState();
+        }
+        InvokeAsync(StateHasChanged);
+    }
 }

@@ -38,7 +38,7 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("GameTypeId")
+                    b.Property<Guid>("GameTypeName")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDraw")
@@ -67,7 +67,7 @@ namespace TaskSeven_GamePlatform.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("GameTypeId");
+                    b.HasIndex("GameTypeName");
 
                     b.HasIndex("Player1Id");
 
@@ -146,7 +146,7 @@ namespace TaskSeven_GamePlatform.Server.Migrations
                 {
                     b.HasOne("TaskSeven_GamePlatform.Shared.Models.GameType", "GameType")
                         .WithMany()
-                        .HasForeignKey("GameTypeId")
+                        .HasForeignKey("GameTypeName")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

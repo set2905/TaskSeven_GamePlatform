@@ -18,6 +18,17 @@ namespace TaskSeven_GamePlatform.Server.Services
             { 1, 1 },
             { 2, 2 },
         };
+        public override async Task<GameState?> UpdateGameState(Guid id)
+        {
+            GameState? gameState = await stateRepo.GetById(id);
+            if (gameState==null||gameState.Player1==null||gameState.Player2==null) return null;
+            if (!gameState.IsGameOver)
+            {
+                if (!gameState.Player1.WaitingForMove||!gameState.Player2.WaitingForMove) return null;
+                await TrySetDraw(gameState);
+            }
+            return gameState;
+        }
         public override async Task<bool> Play(Guid playerId, int move, GameState gameState)
         {
             if (gameState.IsGameOver) return false;
@@ -92,15 +103,15 @@ namespace TaskSeven_GamePlatform.Server.Services
             }
             return false;
         }
-        public override async Task<Guid?> StartGame(Guid playerId, Guid opponentId, Guid gameTypeId)
+        public override async Task<Guid?> StartGame(Guid playerId, Guid opponentId, string gameTypeName)
         {
             Player? player1 = await playerRepo.GetById(playerId);
             Player? player2 = await playerRepo.GetById(opponentId);
-            GameType? gameType = await gameTypeRepo.GetById(gameTypeId);
+            GameType? gameType = await gameTypeRepo.GetByName(gameTypeName);
 
             if (player1 == null || player2 == null||gameType == null)
                 return null;
-            if (player1.IsPlaying||player2.IsPlaying||player1.CurrentGameTypeId!=gameTypeId||player2.CurrentGameTypeId!=gameTypeId)
+            if (player1.IsPlaying||player2.IsPlaying||player1.CurrentGameTypeId!=gameType.Id||player2.CurrentGameTypeId!=gameType.Id)
                 return null;
 
             SetPlayerGameStart(player1, gameType);

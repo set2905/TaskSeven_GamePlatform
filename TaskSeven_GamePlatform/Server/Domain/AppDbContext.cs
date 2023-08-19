@@ -21,7 +21,15 @@ namespace TaskSeven_GamePlatform.Server.Domain
              new GameType()
              {
                  Id=new Guid("706C2E99-6F6C-4472-81A5-43C56E11637C"),
-                 FieldSize=9
+                 FieldSize=9,
+                 Name="TicTacToe"
+
+             },
+             new GameType()
+             {
+                 Id=new Guid("bbd5efd3-bd3b-4bc9-8474-a6820a313483"),
+                 FieldSize=2,
+                 Name="RockPaperScissors"
              }
             );
         }

@@ -12,8 +12,10 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddScoped<IGameSessionHub, GameSessionHub>();
 builder.Services.AddScoped<ITicTacToeClientService, TicTacToeClientService>();
+builder.Services.AddScoped<IRockPaperScissorsClientService, RockPaperScissorsClientService>();
 builder.Services.AddScoped<IPlayerClientService, PlayerClientService>();
-builder.Services.AddScoped<TicTacToeSessionService>();
+builder.Services.AddScoped<TicTacToeSessionClientService>();
+builder.Services.AddScoped<RockPaperScissorsSessionClientService>();
 
 builder.Services.AddMudServices();
 

@@ -5,7 +5,7 @@
 @using TaskSeven_GamePlatform.Client.Services.Interfaces;
 @using TaskSeven_GamePlatform.Client.Services;
 @using TaskSeven_GamePlatform.Shared.Models;
-@inject TicTacToeSessionService sessionService
+@inject TicTacToeSessionClientService sessionService
 
 
 <PageTitle>Tic Tac Toe</PageTitle>
@@ -14,7 +14,7 @@
         <MudStack AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
             <p>Your name</p>
             <MudTextField @bind-Value="@sessionService.playerName" Class="mt-3" />
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="sessionService.OnSubmitName" Class="px-10">Submit</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="()=>sessionService.OnSubmitName(GAMENAME)" Class="px-10">Submit</MudButton>
         </MudStack>
     </MudPaper>
 </MudOverlay>
@@ -109,6 +109,8 @@
 
     private static System.Timers.Timer countDownTurnTimer = new System.Timers.Timer(1000);
     private string cellValueTag = "div";
+    private const string GAMENAME = "TicTacToe";
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -126,7 +128,7 @@
         countDownTurnTimer.Enabled = true;
     }
 
-    public void CountDownTimer(Object source, System.Timers.ElapsedEventArgs e)
+    public void CountDownTimer(Object? source, System.Timers.ElapsedEventArgs e)
     {
         if (sessionService.turnCounter > 0)
         {

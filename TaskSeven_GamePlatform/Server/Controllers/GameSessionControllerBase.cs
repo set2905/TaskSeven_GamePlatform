@@ -30,9 +30,9 @@ namespace TaskSeven_GamePlatform.Server.Controllers
         [Route("StartGameSearch")]
         public async Task<IActionResult> StartGameSearch(GameSearchRequestModel model)
         {
-            Player? player = await playerService.SetGameTypeToPlayer(model.PlayerId, model.GameTypeId);
+            Player? player = await playerService.SetGameTypeToPlayer(model.PlayerId, model.GameTypeName);
             if (player==null) return BadRequest("Couldnt set game type");
-            Player? opponent = await playerService.StartGameSearch(player, model.GameTypeId);
+            Player? opponent = await playerService.StartGameSearch(player, model.GameTypeName);
             return new JsonResult(opponent);
         }
 
@@ -43,7 +43,7 @@ namespace TaskSeven_GamePlatform.Server.Controllers
         [Route("StartGame")]
         public async Task<IActionResult> StartGame(GameStartRequestModel model)
         {
-            Guid? gameStateId = await gameService.StartGame(model.PlayerId, model.OpponentId, model.GameTypeId);
+            Guid? gameStateId = await gameService.StartGame(model.PlayerId, model.OpponentId, model.GameTypeName);
             if (gameStateId==null) return BadRequest("Couldnt start game");
             return new JsonResult(gameStateId);
         }

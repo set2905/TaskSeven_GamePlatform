@@ -4,15 +4,17 @@ using System.Text.Json;
 using System.Text.Unicode;
 using TaskSeven_GamePlatform.Client.Services.Interfaces;
 using TaskSeven_GamePlatform.Shared.Models;
-using static TaskSeven_GamePlatform.Client.Services.TicTacToeSessionService;
+using static TaskSeven_GamePlatform.Client.Services.TicTacToeSessionClientService;
 
 namespace TaskSeven_GamePlatform.Client.Services
 {
-    public abstract class GameSessionServiceBase
+    public abstract class GameSessionClientServiceBase
     {
         protected readonly IPlayerClientService PlayerService;
         protected readonly IGameSessionHub Hub;
         protected readonly ISnackbar Snackbar;
+        protected readonly IGameClientService ClientService;
+
 
         public event Changed? OnStateChange;
         public event Changed? OnRestartTimer;
@@ -33,14 +35,15 @@ namespace TaskSeven_GamePlatform.Client.Services
         {
             Encoder = JavaScriptEncoder.Create(UnicodeRanges.BasicLatin, UnicodeRanges.Cyrillic),
         };
-        protected Guid gameTypeId;
+        protected string gameTypeName;
         protected DialogOptions nameDialogOptions = new() { FullWidth = true };
 
-        protected GameSessionServiceBase(IPlayerClientService playerService, IGameSessionHub hub, ISnackbar snackbar)
+        protected GameSessionClientServiceBase(IPlayerClientService playerService, IGameSessionHub hub, ISnackbar snackbar, IGameClientService clientService)
         {
             PlayerService=playerService;
             Hub=hub;
             Snackbar=snackbar;
+            ClientService=clientService;
         }
         public virtual async Task Restart()
         {
@@ -56,9 +59,58 @@ namespace TaskSeven_GamePlatform.Client.Services
             if (currentGameState == null) return;
             await UpdateGameState(currentGameState.Id);
         }
-        public abstract Task Move(int pos);
 
         protected abstract Task UpdateGameState(Guid gameStateId);
+        public async Task Move(int pos)
+        {
+            if (currentGameState == null||player==null||opponent.ConnectionId==null) return;
+            bool? result = await ClientService.Move(new(player.Id, currentGameState.Id, pos));
+            if (result == null) return;
+            if (result == true)
+            {
+                await UpdateGameState();
+                await Hub.NotifyGameStateUpdate(opponent.ConnectionId);
+            }
+        }
+        protected  async Task TryFindOpponent()
+        {
+            while (opponent.Id == default)
+            {
+                Player? foundOpponent = await ClientService.StartGameSearch(new(player.Id, gameTypeName));
+                if (foundOpponent != null)
+                {
+                    loadingMessage = "Opponent found! Waiting for game to start.";
+                    await Hub.NotifyFoundYou(foundOpponent.ConnectionId, player.Id);
+                    opponent = foundOpponent;
+                }
+                await Task.Delay(7000);
+            }
+        }
+        protected async Task HandleOpponentFoundYou(Guid opponentId)
+        {
+            isLoading = false;
+            Snackbar.Add("Opponent found!", Severity.Success);
+            Guid? gameStateId = await ClientService.StartGame(new(player.Id, opponentId, gameTypeName));
+            if (gameStateId!=null)
+            {
+                Player? found = await PlayerService.GetPlayer(opponentId);
+                if (found==null)
+                {
+                    ShowError("Opponent found, but opponent id is not correct!");
+                    return;
+                }
+                opponent = found;
+                if (opponent.ConnectionId==null)
+                {
+                    ShowError("Opponent found, but opponent connection id is null!");
+                    return;
+                }
+                await Hub.NotifyGameStarted(opponent.ConnectionId, (Guid)gameStateId);
+                await UpdateGameState((Guid)gameStateId);
+
+                InvokeStateChanged();
+            }
+        }
 
         protected async Task InitializePlayer(string name)
         {
@@ -69,7 +121,6 @@ namespace TaskSeven_GamePlatform.Client.Services
             Hub.OnGameStarted += HandleGameStart;
             await PlayerService.SetPlayerConnectionId(new(ConnectionId, player.Id));
         }
-        protected abstract Task TryFindOpponent();
 
         private async Task HandleGameStart(Guid gameStateId)
         {
@@ -77,9 +128,9 @@ namespace TaskSeven_GamePlatform.Client.Services
             InvokeStateChanged();
                         await UpdateGameState(gameStateId);
         }
-        protected abstract Task HandleOpponentFoundYou(Guid opponentId);
+        
 
-        public async Task OnSubmitName()
+        public async Task OnSubmitName(string gameTypeName)
         {
             if (playerName.Length == 0) return;
             nameDialogVisible = false;
@@ -90,7 +141,7 @@ namespace TaskSeven_GamePlatform.Client.Services
             await InitializePlayer(playerName);
             loadingMessage = "Looking for opponent...";
             InvokeStateChanged();
-            gameTypeId = Guid.Parse("706C2E99-6F6C-4472-81A5-43C56E11637C");
+            this.gameTypeName = gameTypeName;
             await TryFindOpponent();
         }
         protected void InvokeStateChanged()
