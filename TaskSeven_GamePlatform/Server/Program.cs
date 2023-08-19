@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+﻿using kedzior.io.ConnectionStringConverter;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using TaskSeven_GamePlatform.Server.Domain;
@@ -12,14 +13,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
 
-string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connection, sqlServerOptionsAction:
-    sqlOptions =>
-    {
-        sqlOptions.EnableRetryOnFailure(maxRetryCount: 10,
-        maxRetryDelay: TimeSpan.FromSeconds(30),
-        errorNumbersToAdd: null);
-    }));
+//string? connection = builder.Configuration.GetConnectionString("DefaultConnection");
+//builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connection, sqlServerOptionsAction:
+//    sqlOptions =>
+//    {
+//        sqlOptions.EnableRetryOnFailure(maxRetryCount: 10,
+//        maxRetryDelay: TimeSpan.FromSeconds(30),
+//        errorNumbersToAdd: null);
+//    }));
+string? connection = Environment.GetEnvironmentVariable("MYSQLCONNSTR_localdb")?? throw new InvalidOperationException("Connection string 'MYSQLCONNSTR_localdb' not found.");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySQL(AzureMySQL.ToMySQLStandard(connection)));
 
 // Add services to the container.
 

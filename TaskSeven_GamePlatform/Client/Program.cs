@@ -19,5 +19,4 @@ builder.Services.AddScoped<RockPaperScissorsSessionClientService>();
 
 builder.Services.AddMudServices();
 
-
 await builder.Build().RunAsync();
