@@ -36,21 +36,20 @@
                     <MudText>
                         @sessionService.turnCounter
                     </MudText>
-                    <MudText>
-                        @sessionService.waitingForOpponentMessage
-                    </MudText>
+
                     <MudIconButton Disabled=@sessionService.moveButtonsDisabled[0] Size="Size.Large" Icon="fas fa-hand-back-fist" OnClick="()=>HandleMoveClick(0)">Rock</MudIconButton>
                     <MudIconButton Disabled=@sessionService.moveButtonsDisabled[1] Size="Size.Large" Icon="fas fa-hand" OnClick="()=>HandleMoveClick(1)">Paper</MudIconButton>
                     <MudIconButton Disabled=@sessionService.moveButtonsDisabled[2] Size="Size.Large" Icon="fas fa-hand-scissors" OnClick="()=>HandleMoveClick(2)">Scissors</MudIconButton>
+                    <MudText>
+                        @sessionService.waitingForOpponentMessage
+                    </MudText>
                 </MudItem>
                 <MudItem xs="3">
                     <MudText Class="d-none d-md-block" Align="Align.Center" Typo="Typo.h6">
                         @sessionService.opponent.Name
                     </MudText>
                     <MudText Align="Align.Center" Typo="Typo.h6">
-                        @* @sessionService.cellValues[1]
 
-                        @sessionService.cellValues[0]*@
                     </MudText>
                 </MudItem>
             </MudGrid>
@@ -75,7 +74,7 @@
     public void RestartTimer()
     {
         if (sessionService.currentGameState == null) return;
-        sessionService.turnCounter = sessionService.currentGameState.SecondsPerMove;
+        sessionService.turnCounter = sessionService.currentGameState.SecondsPerMove+1;
         StateHasChanged();
         countDownTurnTimer.Enabled = true;
     }

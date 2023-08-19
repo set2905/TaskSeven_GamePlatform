@@ -21,7 +21,7 @@ namespace TaskSeven_GamePlatform.Client.Services
 
         public bool isLoading = false;
         public bool isGameOver = false;
-        public string waitingForOpponentMessage = string.Empty;
+        public string waitingForOpponentMessage = " ";
         public string loadingMessage = "Looking for opponent...";
         public string gameOverMessage = "Game Over";
         public GameState? currentGameState;
@@ -59,19 +59,22 @@ namespace TaskSeven_GamePlatform.Client.Services
         public async Task UpdateGameState()
         {
             if (currentGameState == null) return;
+
+
+            await UpdateGameState(currentGameState.Id);
+        }
+
+        protected virtual async Task UpdateGameState(Guid gameStateId)
+        {
             if (player!=null)
             {
                 player=await PlayerService.GetPlayer(player.Id);
                 if (player.WaitingForMove)
                     waitingForOpponentMessage="Opponnents turn! Waiting...";
                 else
-                    waitingForOpponentMessage=string.Empty;
+                    waitingForOpponentMessage="Your turn! Make a move!";
             }
-
-            await UpdateGameState(currentGameState.Id);
         }
-
-        protected abstract Task UpdateGameState(Guid gameStateId);
         public async Task<bool> Move(int pos)
         {
             if (currentGameState == null||player==null||opponent.ConnectionId==null) return false;

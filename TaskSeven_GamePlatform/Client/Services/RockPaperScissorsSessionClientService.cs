@@ -26,6 +26,8 @@ namespace TaskSeven_GamePlatform.Client.Services
         }
         protected override async Task UpdateGameState(Guid gameStateId)
         {
+            await base.UpdateGameState(gameStateId);
+
             GameState? recievedState = await ClientService.GetGameState(gameStateId);
             if (recievedState == null) return;
             currentGameState = recievedState;
