@@ -47,16 +47,10 @@ namespace TaskSeven_GamePlatform.Server.Services
             int playerIndex = players.IndexOf(player);
             int opponentIndex = players.IndexOf(opponent);
             field[playerIndex] = move;
-            if (await TrySetDraw(gameState, field)) 
+            if (await TrySetDraw(gameState, field))
             {
-                gameState.IsGameOver = true;
-                gameState.IsDraw = true;
-                gameState.Player1.IsPlaying=false;
-                gameState.Player2.IsPlaying=false;
-                await playerRepo.Save(gameState.Player1);
-                await playerRepo.Save(gameState.Player2);
-                await stateRepo.Save(gameState);
-                return true; 
+
+                return true;
             }
 
             await CheckWinner(gameState, player, opponent, playerIndex, opponentIndex, field);
@@ -105,7 +99,17 @@ namespace TaskSeven_GamePlatform.Server.Services
         {
             if (await TrySetDraw(gameState)) return true;
             if (field.Any(x => x==-1)) return false;
-            if (field[0]==field[1]) return true;
+            if (field[0]==field[1])
+            {
+                gameState.IsGameOver = true;
+                gameState.IsDraw = true;
+                gameState.Player1.IsPlaying=false;
+                gameState.Player2.IsPlaying=false;
+                await playerRepo.Save(gameState.Player1);
+                await playerRepo.Save(gameState.Player2);
+                await stateRepo.Save(gameState);
+                return true;
+            }
             return false;
         }
 
@@ -117,7 +121,13 @@ namespace TaskSeven_GamePlatform.Server.Services
 
             if ((DateTime.Now-gameState.LastMove).Seconds>gameState.SecondsPerMove)
             {
-
+                gameState.IsGameOver = true;
+                gameState.IsDraw = true;
+                gameState.Player1.IsPlaying=false;
+                gameState.Player2.IsPlaying=false;
+                await playerRepo.Save(gameState.Player1);
+                await playerRepo.Save(gameState.Player2);
+                await stateRepo.Save(gameState);
                 return true;
             }
             return false;
