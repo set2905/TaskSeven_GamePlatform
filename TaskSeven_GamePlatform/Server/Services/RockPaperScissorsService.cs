@@ -24,7 +24,7 @@ namespace TaskSeven_GamePlatform.Server.Services
             if (gameState==null||gameState.Player1==null||gameState.Player2==null) return null;
             if (!gameState.IsGameOver)
             {
-                if (!gameState.Player1.WaitingForMove||!gameState.Player2.WaitingForMove) return null;
+                // if (!gameState.Player1.WaitingForMove||!gameState.Player2.WaitingForMove) return null;
                 await TrySetDraw(gameState);
             }
             return gameState;
@@ -47,9 +47,27 @@ namespace TaskSeven_GamePlatform.Server.Services
             int playerIndex = players.IndexOf(player);
             int opponentIndex = players.IndexOf(opponent);
             field[playerIndex] = move;
-            if (await TrySetDraw(gameState)) return true;
+            if (await TrySetDraw(gameState, field)) 
+            {
+                gameState.IsGameOver = true;
+                gameState.IsDraw = true;
+                gameState.Player1.IsPlaying=false;
+                gameState.Player2.IsPlaying=false;
+                await playerRepo.Save(gameState.Player1);
+                await playerRepo.Save(gameState.Player2);
+                await stateRepo.Save(gameState);
+                return true; 
+            }
 
             await CheckWinner(gameState, player, opponent, playerIndex, opponentIndex, field);
+            gameState.Field=JsonSerializer.Serialize(field, options);
+            gameState.LastMove=DateTime.Now;
+            await stateRepo.Save(gameState);
+
+            player.WaitingForMove=true;
+            await playerRepo.Save(player);
+            await playerRepo.Save(opponent);
+
             return true;
 
         }
@@ -80,25 +98,26 @@ namespace TaskSeven_GamePlatform.Server.Services
             gameState.Winner=player;
             opponent.IsPlaying=false;
             player.IsPlaying=false;
-            await stateRepo.Save(gameState);
-            await playerRepo.Save(opponent);
-            await playerRepo.Save(player);
             return true;
         }
+
+        protected async Task<bool> TrySetDraw(GameState gameState, int[] field)
+        {
+            if (await TrySetDraw(gameState)) return true;
+            if (field.Any(x => x==-1)) return false;
+            if (field[0]==field[1]) return true;
+            return false;
+        }
+
 
         protected override async Task<bool> TrySetDraw(GameState gameState)
         {
             if (gameState.Player1==null||gameState.Player2==null)
                 throw new ArgumentNullException();
+
             if ((DateTime.Now-gameState.LastMove).Seconds>gameState.SecondsPerMove)
             {
-                gameState.IsGameOver = true;
-                gameState.IsDraw = true;
-                gameState.Player1.IsPlaying=false;
-                gameState.Player2.IsPlaying=false;
-                await playerRepo.Save(gameState.Player1);
-                await playerRepo.Save(gameState.Player2);
-                await stateRepo.Save(gameState);
+
                 return true;
             }
             return false;

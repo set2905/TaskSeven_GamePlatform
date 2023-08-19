@@ -4,4 +4,38 @@
 
 <MudText Typo="Typo.h3" GutterBottom="true">Hello, world!</MudText>
 <MudText Class="mb-8">Welcome to your new app, powered by MudBlazor!</MudText>
-<MudAlert Severity="Severity.Normal">You can find documentation and examples on our website here: <MudLink Href="https://mudblazor.com" Typo="Typo.body2" Color="Color.Inherit"><b>www.mudblazor.com</b></MudLink></MudAlert>
+<MudGrid>
+    @for (int i = 0; i<20; i++)
+    {
+        <MudItem xs="12" sm="6" md="3">
+            <MudCard>
+                <MudCardMedia Image="images/rps.png" Height="200" />
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">Tic Tac Toe</MudText>
+                    <MudText Typo="Typo.body2">Play the classic Tic-Tac-Toe game</MudText>
+                    <MudText Typo="Typo.body2">for free online with two players.</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Href="tictactoe" Variant="Variant.Text" Color="Color.Primary">Play</MudButton>
+                    <MudButton  Variant="Variant.Text" Color="Color.Primary">Help</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+
+            <MudCard>
+                <MudCardMedia Image="images/rps.png" Height="200" />
+                <MudCardContent>
+                    <MudText Typo="Typo.h5">Rock Paper Scissors</MudText>
+                    <MudText Typo="Typo.body2">Play a classic game of Rock-Paper-Scissors</MudText>
+                    <MudText Typo="Typo.body2">for free online with two players.</MudText>
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton Href="rockpaperscissors" Variant="Variant.Text" Color="Color.Primary">Play</MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary">Help</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    }
+
+</MudGrid>
