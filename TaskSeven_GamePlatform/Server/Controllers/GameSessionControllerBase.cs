@@ -7,13 +7,13 @@ namespace TaskSeven_GamePlatform.Server.Controllers
 {
     public abstract class GameSessionControllerBase : ControllerBase
     {
-        protected readonly IPlayerService playerService;
         protected readonly IGameService gameService;
+        protected readonly IPlayerService playerService;
 
         protected GameSessionControllerBase(IPlayerService playerService, IGameService gameService)
         {
-            this.playerService=playerService;
             this.gameService=gameService;
+            this.playerService=playerService;
         }
         [HttpPost]
         [Route("GameState")]
@@ -24,12 +24,16 @@ namespace TaskSeven_GamePlatform.Server.Controllers
             return new JsonResult(gameState);
         }
 
+        /// <param name="model"></param>
+        /// <returns>Found opponent or null if opponent not found</returns>
         [HttpPost]
-        [Route("SetPlayerName")]
-        public async Task<IActionResult> SetPlayerName(SetNameRequestModel model)
+        [Route("StartGameSearch")]
+        public async Task<IActionResult> StartGameSearch(GameSearchRequestModel model)
         {
-            Player? player = await playerService.SetName(model.Name);
-            return new JsonResult(player);
+            Player? player = await playerService.SetGameTypeToPlayer(model.PlayerId, model.GameTypeId);
+            if (player==null) return BadRequest("Couldnt set game type");
+            Player? opponent = await playerService.StartGameSearch(player, model.GameTypeId);
+            return new JsonResult(opponent);
         }
 
 
@@ -72,35 +76,7 @@ namespace TaskSeven_GamePlatform.Server.Controllers
 
 
 
-        [HttpPost]
-        [Route("Player")]
-        public async Task<IActionResult> GetPlayer(GetByIdRequestModel model)
-        {
-            Player? player = await playerService.GetById(model.Id);
-            if (player == null) return BadRequest("Player with provided id not found");
-            return new JsonResult(player);
-        }
 
-        [HttpPost]
-        [Route("SetConnectionId")]
-        public async Task<IActionResult> SetPlayerConnectionId(SetConnIdRequestModel model)
-        {
-            if (!await playerService.SetPlayerConnectionId(model.PlayerId, model.ConnectionId))
-                return BadRequest("Couldnt set player connection Id");
-            return Ok();
-        }
-
-        /// <param name="model"></param>
-        /// <returns>Found opponent or null if opponent not found</returns>
-        [HttpPost]
-        [Route("StartGameSearch")]
-        public async Task<IActionResult> StartGameSearch(GameSearchRequestModel model)
-        {
-            Player? player = await playerService.SetGameTypeToPlayer(model.PlayerId, model.GameTypeId);
-            if (player==null) return BadRequest("Couldnt set game type");
-            Player? opponent = await playerService.StartGameSearch(player, model.GameTypeId);
-            return new JsonResult(opponent);
-        }
 
     }
 }

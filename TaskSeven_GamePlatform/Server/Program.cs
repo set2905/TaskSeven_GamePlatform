@@ -36,6 +36,7 @@ builder.Services.AddTransient<IGameStateRepo, GameStateRepo>();
 builder.Services.AddTransient<IGameTypeRepo, GameTypeRepo>();
 builder.Services.AddTransient<IPlayerService, PlayerService>();
 builder.Services.AddTransient<ITicTacToeService, TicTacToeService>();
+builder.Services.AddTransient<IRockPaperScissorsService, RockPaperScissorsService>();
 
 
 var app = builder.Build();

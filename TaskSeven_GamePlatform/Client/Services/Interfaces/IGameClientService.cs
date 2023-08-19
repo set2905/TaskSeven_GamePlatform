@@ -2,10 +2,9 @@
 
 namespace TaskSeven_GamePlatform.Client.Services.Interfaces
 {
-    public interface ITicTacToeClientService
+    public interface IGameClientService
     {
         public Task<GameState?> GetGameState(Guid gameStateId);
-        public Task<Player?> GetPlayer(Guid playerId);
 
         public Task<Player?> StartGameSearch(GameSearchRequestModel model);
         public Task ExitGame(Guid playerId);

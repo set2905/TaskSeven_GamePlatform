@@ -1,14 +1,22 @@
-﻿using System.Net.Http.Json;
+﻿using MudBlazor;
+using System.Net.Http.Json;
+using TaskSeven_GamePlatform.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Client.Services
 {
     public abstract class ClientAPIBase
     {
         private readonly HttpClient httpClient;
-        public ClientAPIBase(HttpClient httpClient)
+        protected readonly ISnackbar snackbar;
+
+        protected string APIUrl;
+        public ClientAPIBase(HttpClient httpClient, ISnackbar snackbar)
         {
             this.httpClient = httpClient;
+            APIUrl=string.Empty;
+            this.snackbar=snackbar;
         }
+
         protected async Task<TReturn?> GetAsync<TReturn>(string relativeUri)
         {
             HttpResponseMessage response = await httpClient.GetAsync(relativeUri);
@@ -35,5 +43,6 @@ namespace TaskSeven_GamePlatform.Client.Services
                 throw new Exception(await response.Content.ReadAsStringAsync());
             }
         }
+
     }
 }

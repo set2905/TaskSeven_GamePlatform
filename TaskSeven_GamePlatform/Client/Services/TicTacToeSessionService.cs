@@ -83,7 +83,7 @@ namespace TaskSeven_GamePlatform.Client.Services
             Guid? gameStateId = await ClientService.StartGame(new(player.Id, opponentId, gameTypeId));
             if (gameStateId!=null)
             {
-                Player? found = await ClientService.GetPlayer(opponentId);
+                Player? found = await PlayerService.GetPlayer(opponentId);
                 if (found==null)
                 {
                     ShowError("Opponent found, but opponent id is not correct!");

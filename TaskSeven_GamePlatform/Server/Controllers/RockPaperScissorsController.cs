@@ -5,6 +5,8 @@ using TaskSeven_GamePlatform.Shared.Models;
 
 namespace TaskSeven_GamePlatform.Server.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class RockPaperScissorsController : GameSessionControllerBase
     {
         public RockPaperScissorsController(IPlayerService playerService, IRockPaperScissorsService gameService) : base(playerService, gameService)
