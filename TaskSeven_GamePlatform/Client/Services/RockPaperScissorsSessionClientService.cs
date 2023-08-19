@@ -8,6 +8,8 @@ namespace TaskSeven_GamePlatform.Client.Services
     public class RockPaperScissorsSessionClientService : GameSessionClientServiceBase
     {
         public string[] cellValues = Enumerable.Repeat(string.Empty, 2).ToArray();
+        public List<bool> moveButtonsDisabled = new() { false, false, false };
+
 
         public RockPaperScissorsSessionClientService(IPlayerClientService playerService,
                                                      IGameSessionHub hub,
@@ -17,8 +19,10 @@ namespace TaskSeven_GamePlatform.Client.Services
         }
         public override async Task Restart()
         {
-            await base.Restart();
+            moveButtonsDisabled = new() { false, false, false };
             cellValues = Enumerable.Repeat(string.Empty, 2).ToArray();
+
+            await base.Restart();
         }
         protected override async Task UpdateGameState(Guid gameStateId)
         {
@@ -47,11 +51,18 @@ namespace TaskSeven_GamePlatform.Client.Services
             if (currentGameState.IsGameOver)
             {
                 isGameOver = true;
+                string move1 = ((RockPaperScissorsMarker)field[0]).ToString();
+                string move2 = ((RockPaperScissorsMarker)field[1]).ToString();
                 if (currentGameState.Winner != null)
-                    gameOverMessage = currentGameState.Winner.Id == player.Id ? "Game over! You win!" : "Game over! You lose!";
+                    gameOverMessage = currentGameState.Winner.Id == player.Id ? $"Game over! You win!\n{move1} vs {move2}" : $"Game over! You lose!\n{move1} vs {move2}";
 
                 if (currentGameState.IsDraw == true)
-                    gameOverMessage = "Game over! Draw!";
+                    gameOverMessage = $"Game over! Draw!";
+            }
+            else
+            {
+                InvokeRestartTimer();
+                return;
             }
 
             InvokeRestartTimer();

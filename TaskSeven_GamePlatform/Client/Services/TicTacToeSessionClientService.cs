@@ -21,8 +21,8 @@ namespace TaskSeven_GamePlatform.Client.Services
 
         public override async Task Restart()
         {
-            await base.Restart();
             cellValues = Enumerable.Repeat(string.Empty, 9).ToArray();
+            await base.Restart();
         }
 
         protected override async Task UpdateGameState(Guid gameStateId)

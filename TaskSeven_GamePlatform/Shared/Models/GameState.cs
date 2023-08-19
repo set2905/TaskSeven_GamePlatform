@@ -11,7 +11,7 @@ namespace TaskSeven_GamePlatform.Shared.Models
             Field=string.Empty;
         }
 
-        public GameState(Player player1, Player player2, GameType gameType, int secondsPerMove=30)
+        public GameState(Player player1, Player player2, GameType gameType, int secondsPerMove=10)
         {
             Player1=player1;
             Player2=player2;

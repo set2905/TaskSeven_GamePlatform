@@ -19,8 +19,8 @@
     </MudPaper>
 </MudOverlay>
 <MudOverlay OnClick="@sessionService.Restart" @bind-Visible="@sessionService.isGameOver" DarkBackground="true">
-    <MudPaper>
-        <MudText Typo="Typo.h3">@sessionService.gameOverMessage</MudText>
+    <MudPaper Class="pa-12">
+        <MudText Align="Align.Center" Typo="Typo.h3">@sessionService.gameOverMessage</MudText>
     </MudPaper>
 </MudOverlay>
 <MudOverlay @bind-Visible="@sessionService.isLoading" DarkBackground="true">
@@ -41,6 +41,9 @@
                 <MudItem Class="d-flex flex-column align-center justify-center" xs="6">
                     <MudText>
                         @sessionService.turnCounter
+                    </MudText>
+                    <MudText>
+                        @sessionService.waitingForOpponentMessage
                     </MudText>
                     <div class="game">
                         <div class="board">
@@ -106,7 +109,6 @@
 
 
 @code {
-
     private static System.Timers.Timer countDownTurnTimer = new System.Timers.Timer(1000);
     private string cellValueTag = "div";
     private const string GAMENAME = "TicTacToe";

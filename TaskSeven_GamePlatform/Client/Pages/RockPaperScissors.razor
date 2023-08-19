@@ -13,8 +13,8 @@
     </MudPaper>
 </MudOverlay>
 <MudOverlay OnClick="@sessionService.Restart" @bind-Visible="@sessionService.isGameOver" DarkBackground="true">
-    <MudPaper>
-        <MudText Typo="Typo.h3">@sessionService.gameOverMessage</MudText>
+    <MudPaper Class="pa-12">
+        <MudText Align="Align.Center" Typo="Typo.h3">@sessionService.gameOverMessage</MudText>
     </MudPaper>
 </MudOverlay>
 <MudOverlay @bind-Visible="@sessionService.isLoading" DarkBackground="true">
@@ -36,18 +36,21 @@
                     <MudText>
                         @sessionService.turnCounter
                     </MudText>
-                    <MudIconButton Icon="fas fa-hand-back-fist" OnClick="()=>sessionService.Move(0)">Rock</MudIconButton>
-                    <MudIconButton Icon="fas fa-hand-scissors" OnClick="()=>sessionService.Move(1)">Paper</MudIconButton>
-                    <MudIconButton Icon="fas fa-hand" OnClick="()=>sessionService.Move(2)">Scissors</MudIconButton>
+                    <MudText>
+                        @sessionService.waitingForOpponentMessage
+                    </MudText>
+                    <MudIconButton Disabled=@sessionService.moveButtonsDisabled[0] Size="Size.Large" Icon="fas fa-hand-back-fist" OnClick="()=>HandleMoveClick(0)">Rock</MudIconButton>
+                    <MudIconButton Disabled=@sessionService.moveButtonsDisabled[1] Size="Size.Large" Icon="fas fa-hand" OnClick="()=>HandleMoveClick(1)">Paper</MudIconButton>
+                    <MudIconButton Disabled=@sessionService.moveButtonsDisabled[2] Size="Size.Large" Icon="fas fa-hand-scissors" OnClick="()=>HandleMoveClick(2)">Scissors</MudIconButton>
                 </MudItem>
                 <MudItem xs="3">
                     <MudText Class="d-none d-md-block" Align="Align.Center" Typo="Typo.h6">
                         @sessionService.opponent.Name
                     </MudText>
                     <MudText Align="Align.Center" Typo="Typo.h6">
-                        @sessionService.cellValues[1]
+                        @* @sessionService.cellValues[1]
 
-                        @sessionService.cellValues[0]
+                        @sessionService.cellValues[0]*@
                     </MudText>
                 </MudItem>
             </MudGrid>
@@ -89,5 +92,18 @@
             sessionService.UpdateGameState();
         }
         InvokeAsync(StateHasChanged);
+    }
+    private async Task HandleMoveClick(int index)
+    {
+
+        if (await sessionService.Move(index))
+        {
+            for (int i = 0; i<sessionService.moveButtonsDisabled.Count; i++)
+            {
+                if (i == index) continue;
+                sessionService.moveButtonsDisabled[i] = true;
+            }
+            StateHasChanged();
+        }
     }
 }
